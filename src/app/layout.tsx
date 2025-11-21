@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   title: {
     default: "KindLink — Connect NGOs, Shelters, and Donors",
     template: "%s — KindLink",
