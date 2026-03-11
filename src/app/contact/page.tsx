@@ -38,8 +38,8 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-[#171717] mb-1">Office</h3>
-                                <p className="text-gray-600">123, Charity Lane, Connaught Place</p>
-                                <p className="text-gray-600">New Delhi - 110001</p>
+                                <p className="text-gray-600">123, Jayanagar, Bengaluru</p>
+                                <p className="text-gray-600">Karnataka - 560078</p>
                             </div>
                         </div>
                     </div>
