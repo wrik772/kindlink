@@ -1,140 +1,157 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import CauseCard from "@/components/CauseCard";
-import SectionHeader from "@/components/SectionHeader";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
+  // If logged in, redirect directly to the new social feed
+  if (session?.user) {
+    redirect("/home");
+  }
+
   return (
-    <div className="flex flex-col gap-20 pb-20">
+    <div className="flex flex-col pb-20">
       {/* Hero Section */}
-      <section className="relative bg-[#fcf9f5] -mx-4 px-4 py-20 sm:py-32 flex flex-col items-center text-center overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[url('/pattern.png')] bg-repeat" /> {/* texture placeholder */}
-        <div className="relative z-10 max-w-4xl space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#ae8563]/30 text-[#ae8563] text-sm font-medium shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-[#ae8563] animate-pulse" />
-            Over 10,000 lives impacted this month
+      <section className="relative overflow-hidden bg-white px-4 py-20 lg:py-32 flex flex-col items-center">
+        {/* Abstract background blobs for a modern feel, using brand colors */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-[var(--brand-cashmere)]/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-[var(--brand-muesli)]/10 blur-3xl" />
+        
+        <div className="relative z-10 max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <div className="flex-1 text-center lg:text-left space-y-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#fffaf4] border border-[#ae8563]/20 text-[#ae8563] text-sm font-semibold shadow-sm">
+                    ✨ The Professional Network for Social Good
+                </div>
+
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[#171717] leading-tight">
+                    Share your impact. <br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8c6746] to-[#d2ae88]">Inspire the world.</span>
+                </h1>
+
+                <p className="text-xl sm:text-2xl text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+                    Join KindLink to showcase your societal achievements, connect with local NGOs, and build a meaningful professional network driven by purpose.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                    <Link
+                    href="/register"
+                    className="btn-primary text-lg px-8 py-4 shadow-xl shadow-[#ae8563]/20 hover:shadow-2xl hover:shadow-[#ae8563]/30 hover:-translate-y-1 transition-all"
+                    >
+                    Join the Network
+                    </Link>
+                    <Link
+                    href="/login"
+                    className="btn-outline text-lg px-8 py-4 hover:-translate-y-1 transition-all bg-white"
+                    >
+                    Sign In
+                    </Link>
+                </div>
+                
+                <div className="pt-8 flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-500 font-medium border-t border-gray-100 mt-8">
+                   <div className="flex -space-x-3">
+                       <div className="w-10 h-10 rounded-full bg-[#f7efe5] border-2 border-white flex items-center justify-center font-bold text-[#ae8563] text-xs">NL</div>
+                       <div className="w-10 h-10 rounded-full bg-[#e5c39c] border-2 border-white flex items-center justify-center font-bold text-white text-xs">RK</div>
+                       <div className="w-10 h-10 rounded-full bg-[#ae8563] border-2 border-white flex items-center justify-center font-bold text-white text-xs">SJ</div>
+                   </div>
+                   <p>Join 10,000+ changemakers today.</p>
+                </div>
+            </div>
+
+            <div className="flex-1 w-full max-w-lg lg:max-w-none relative">
+                 {/* Mockup UI representation */}
+                 <div className="relative rounded-2xl bg-white shadow-2xl shadow-[#ae8563]/10 border border-gray-100 overflow-hidden transform lg:rotate-2">
+                     <div className="h-12 bg-[#fffaf4] border-b border-gray-100 flex items-center px-4 gap-2">
+                         <div className="flex gap-1.5">
+                             <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                             <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                             <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                         </div>
+                     </div>
+                     <div className="p-6 space-y-6">
+                         <div className="flex gap-4 items-center">
+                             <div className="w-12 h-12 rounded-full bg-[#e5c39c] flex items-center justify-center text-white font-bold">W</div>
+                             <div>
+                                 <div className="h-4 w-32 bg-gray-200 rounded mb-2"></div>
+                                 <div className="h-3 w-24 bg-gray-100 rounded"></div>
+                             </div>
+                         </div>
+                         <div className="space-y-2">
+                            <div className="h-3 w-full bg-gray-100 rounded"></div>
+                            <div className="h-3 w-5/6 bg-gray-100 rounded"></div>
+                            <div className="h-3 w-4/6 bg-gray-100 rounded"></div>
+                         </div>
+                         <div className="w-full aspect-video bg-[#f7efe5] rounded-xl flex items-center justify-center text-[#ae8563]/50 border border-[#ae8563]/10">
+                              Planted 50 Trees Today! 🌳
+                         </div>
+                         <div className="flex gap-4 pt-2 border-t border-gray-50">
+                             <div className="h-8 w-16 bg-gray-100 rounded-full"></div>
+                             <div className="h-8 w-20 bg-gray-100 rounded-full"></div>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 {/* Floating Recommendation Panel element */}
+                 <div className="absolute -bottom-10 -left-10 bg-white p-4 rounded-xl shadow-xl border border-gray-100 w-64 hidden sm:block transform -rotate-3 z-20">
+                     <p className="text-xs font-bold text-gray-500 mb-3">Suggested Organization</p>
+                     <div className="flex gap-3 items-center">
+                         <div className="w-10 h-10 rounded-lg bg-[var(--brand-muesli)] flex items-center justify-center text-white font-bold">GE</div>
+                         <div>
+                             <p className="font-bold text-sm text-[#171717]">Green Earth</p>
+                             <p className="text-xs text-gray-400">Environment • 2km away</p>
+                         </div>
+                     </div>
+                 </div>
+            </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="bg-[#fffaf4] py-24 px-4 w-full">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <div className="text-center max-w-2xl mx-auto space-y-4">
+              <h2 className="text-3xl md:text-5xl font-bold text-[#171717]">More than just a profile</h2>
+              <p className="text-lg text-gray-600">KindLink provides the tools to build your social impact resume and discover causes in your local community.</p>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight text-[#171717]">
-            Make a real difference in <span className="text-[#ae8563] text-glow">real time</span>
-          </h1>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#ae8563]/10 hover:shadow-md transition-shadow">
+              <div className="w-14 h-14 bg-[#f7efe5] rounded-xl flex items-center justify-center mb-6 border border-[#ae8563]/20">
+                  <svg className="w-6 h-6 text-[#ae8563]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-[#171717]">Showcase Achievements</h3>
+              <p className="text-gray-600 leading-relaxed">Post pictures and videos of your volunteer work. Build a verified history of your societal contributions.</p>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#ae8563]/10 hover:shadow-md transition-shadow">
+              <div className="w-14 h-14 bg-[#f7efe5] rounded-xl flex items-center justify-center mb-6 border border-[#ae8563]/20">
+                  <svg className="w-6 h-6 text-[#ae8563]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-[#171717]">Connect with Peers</h3>
+              <p className="text-gray-600 leading-relaxed">Follow other changemakers, engage with their posts, and collaborate on initiatives that matter to you.</p>
+            </div>
 
-          <p className="text-xl sm:text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            KindLink connects you directly with NGOs and shelters. No middlemen, just pure impact. Your help reaches those who need it most, instantly.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Link
-              href="/home"
-              className="btn-primary text-lg px-8 py-4 shadow-xl shadow-[#ae8563]/20 hover:shadow-2xl hover:shadow-[#ae8563]/30"
-            >
-              Start Donating
-            </Link>
-            <Link
-              href="/about"
-              className="btn-outline text-lg px-8 py-4"
-            >
-              How it Works
-            </Link>
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#ae8563]/10 hover:shadow-md transition-shadow">
+              <div className="w-14 h-14 bg-[#f7efe5] rounded-xl flex items-center justify-center mb-6 border border-[#ae8563]/20">
+                  <svg className="w-6 h-6 text-[#ae8563]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-[#171717]">Discover Local NGOs</h3>
+              <p className="text-gray-600 leading-relaxed">Our recommendation engine matches you with local shelters and organizations based on your causes and location.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="bg-[var(--brand-muesli)] text-white py-16 -mx-4 shadow-inner">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div className="space-y-2">
-            <div className="text-4xl sm:text-5xl font-bold">50+</div>
-            <div className="text-[#e5c39c] font-medium">Partner NGOs</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl sm:text-5xl font-bold">12k</div>
-            <div className="text-[#e5c39c] font-medium">Donations</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl sm:text-5xl font-bold">₹1.2Cr</div>
-            <div className="text-[#e5c39c] font-medium">Funds Raised</div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-4xl sm:text-5xl font-bold">100%</div>
-            <div className="text-[#e5c39c] font-medium">Transparency</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Causes */}
-      <section className="max-w-6xl mx-auto w-full px-4">
-        <SectionHeader
-          title="Urgent Causes"
-          subtitle="These campaigns need your immediate attention. Every second counts."
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <CauseCard
-            title="Help provide life-saving food for 500+ stray dogs"
-            organizer="Paws for Cause"
-            description="With winter approaching, we need to stock up on food and blankets for the stray animals in our shelter. Your contribution can keep them warm and fed."
-            raised="₹1,25,000"
-            goal="₹2,00,000"
-            progress={62}
-            daysLeft={5}
-            imageSrc="/images/dogs.jpg"
-          />
-          <CauseCard
-            title="Sponsor education for underprivileged children"
-            organizer="Future Bright Foundation"
-            description="Help us provide books, uniforms, and school supplies to 100 children in rural Maharashtra. Education is their only way out of poverty."
-            raised="₹4,50,000"
-            goal="₹5,00,000"
-            progress={90}
-            daysLeft={2}
-            imageSrc="/images/education.jpg"
-          />
-          <CauseCard
-            title="Emergency medical kits for flood victims"
-            organizer="Relief India"
-            description="Recent floods have devastated villages. We are distributing emergency medical kits and dry ration. We need your support to reach more families."
-            raised="₹85,000"
-            goal="₹3,00,000"
-            progress={28}
-            daysLeft={12}
-            imageSrc="/images/flood.jpg"
-          />
-        </div>
-
-        <div className="text-center mt-12">
-          <Link href="/home" className="btn-outline">
-            View All Campaigns
+      {/* CTA Section */}
+      <section className="max-w-4xl mx-auto px-4 text-center mt-10">
+         <h2 className="text-3xl md:text-4xl font-bold text-[#171717] mb-6">Ready to make a difference?</h2>
+         <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto">Your impact matters. Start building your societal network today and see how easy it is to inspire change.</p>
+         <Link
+            href="/register"
+            className="btn-primary text-xl px-12 py-5 shadow-xl shadow-[#ae8563]/20 hover:shadow-2xl hover:-translate-y-1 transition-all inline-block"
+          >
+            Create Your Profile
           </Link>
-        </div>
-      </section>
-
-      {/* How it Works */}
-      <section className="bg-[#fffaf4] py-20 -mx-4">
-        <div className="max-w-6xl mx-auto px-4">
-          <SectionHeader
-            title="How KindLink Works"
-            subtitle="Transparency and ease at every step of your giving journey."
-            centered
-          />
-
-          <div className="grid md:grid-cols-3 gap-12 text-center relative">
-            <div className="relative z-10">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-[#ae8563]/20 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-[#ae8563]">1</div>
-              <h3 className="text-xl font-bold mb-3">Choose a Cause</h3>
-              <p className="text-gray-600">Browse through verified campaigns from trusted NGOs and Shelters.</p>
-            </div>
-            <div className="relative z-10">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-[#ae8563]/20 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-[#ae8563]">2</div>
-              <h3 className="text-xl font-bold mb-3">Make a Donation</h3>
-              <p className="text-gray-600">Donate securely. Even small contributions make a significant impact.</p>
-            </div>
-            <div className="relative z-10">
-              <div className="w-16 h-16 bg-white rounded-2xl shadow-md border border-[#ae8563]/20 flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-[#ae8563]">3</div>
-              <h3 className="text-xl font-bold mb-3">Track Impact</h3>
-              <p className="text-gray-600">Get updates on how your donation was used and the lives you changed.</p>
-            </div>
-          </div>
-        </div>
       </section>
     </div>
   );

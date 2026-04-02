@@ -42,6 +42,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Providers } from "@/components/Providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -52,9 +54,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <Header />
-        <main className="mx-auto max-w-6xl px-4 flex-1">{children}</main>
-        <Footer />
+        <Providers>
+          <Header />
+          <main className="mx-auto max-w-6xl px-4 flex-1">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

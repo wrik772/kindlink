@@ -1,30 +1,25 @@
 import mongoose, { Schema } from "mongoose";
 
-export type PostType = "donation" | "volunteer" | "in-kind";
-
 export interface PostDocument extends mongoose.Document {
-  orgName: string;
-  type: PostType;
-  message: string;
+  author: mongoose.Types.ObjectId;
+  content: string;
+  mediaUrl?: string; // URL to image/video
+  likes: mongoose.Types.ObjectId[];
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const PostSchema = new Schema<PostDocument>(
   {
-    orgName: { type: String, required: true, trim: true },
-    type: {
-      type: String,
-      enum: ["donation", "volunteer", "in-kind"],
-      required: true,
-    },
-    message: { type: String, required: true, trim: true },
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    content: { type: String, required: true, trim: true },
+    mediaUrl: { type: String },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
 
-const Post =
-  (mongoose.models.Post as mongoose.Model<PostDocument>) ||
-  mongoose.model<PostDocument>("Post", PostSchema);
+const Post = mongoose.models.Post || mongoose.model<PostDocument>("Post", PostSchema);
 
 export default Post;
 

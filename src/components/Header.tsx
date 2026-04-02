@@ -20,14 +20,22 @@ export default async function Header() {
             href="/home"
             className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
           >
-            Causes
+            Feed
           </Link>
           <Link
-            href="/about"
+            href="/network"
             className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
           >
-            About Us
+            Network
           </Link>
+          {session?.user && (
+            <Link
+              href="/messages"
+              className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
+            >
+              Messages
+            </Link>
+          )}
 
           <div className="flex items-center gap-3">
             {!session?.user ? (
@@ -42,7 +50,7 @@ export default async function Header() {
                   href="/register"
                   className="rounded-full bg-[var(--brand-muesli)] text-white px-5 py-2.5 hover:opacity-90 transition-opacity shadow-sm"
                 >
-                  Donate Now
+                  Join Network
                 </Link>
               </>
             ) : (

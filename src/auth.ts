@@ -34,7 +34,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
         }
 
         await connectToDatabase();
-        const user = await User.findOne({ email: parsed.data.email }).lean();
+        const user = await User.findOne({ email: parsed.data.email }).lean() as any;
         if (!user) {
           return null;
         }
@@ -56,5 +56,3 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
     signIn: "/login",
   },
 });
-
-

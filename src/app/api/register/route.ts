@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 
     console.error("POST /api/register error", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", error: error instanceof Error ? error.stack : String(error) },
       { status: 500 }
     );
   }
