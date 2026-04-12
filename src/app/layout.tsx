@@ -22,11 +22,7 @@ export const metadata: Metadata = {
   },
   description:
     "KindLink is a community-driven platform connecting NGOs, animal shelters, and local donors in real time.",
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/logo.png",
-  },
+
   openGraph: {
     title: "KindLink — Connect NGOs, Shelters, and Donors",
     description:
