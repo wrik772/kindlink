@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Message from "@/models/Message";
 import User from "@/models/User";
+import { decrypt } from "@/lib/encryption";
 
 export async function GET(req: Request, { params }: { params: Promise<{ userId: string }> }) {
   try {
@@ -24,7 +25,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
             { sender: currentUser._id, receiver: otherUserId },
             { sender: otherUserId, receiver: currentUser._id }
         ]
-    }).sort({ createdAt: 1 }).populate('sender', 'name avatar email').lean();
+    }).sort({ createdAt: 1 }).populate('sender', 'name avatar email').lean() as any[];
+
+    // Decrypt payload
+    messages.forEach(msg => {
+       msg.content = decrypt(msg.content);
+    });
 
     return NextResponse.json(messages, { status: 200 });
   } catch (error) {

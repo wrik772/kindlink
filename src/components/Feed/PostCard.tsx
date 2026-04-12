@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect } from "react";
 
 export default function PostCard({ post, currentUserId }: { post: any; currentUserId: string }) {
   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [hasLiked, setHasLiked] = useState(
-    post.likes?.includes(currentUserId)
+    (post.likes || []).includes(currentUserId)
   );
 
   const [showComments, setShowComments] = useState(false);
@@ -14,6 +16,22 @@ export default function PostCard({ post, currentUserId }: { post: any; currentUs
   const [newComment, setNewComment] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  // Poll for real-time like updates
+  useEffect(() => {
+     const int = setInterval(() => {
+        fetch(`/api/posts/${post._id}/stats`)
+          .then(res => res.json())
+          .then(data => {
+              if (data.likes !== undefined) {
+                 setLikesCount(data.likes);
+                 setHasLiked(data.hasLiked);
+              }
+          }).catch(() => null);
+     }, 8000); // Polling every 8 seconds for real-time feel
+     return () => clearInterval(int);
+  }, [post._id]);
 
   const toggleComments = async () => {
     setShowComments(!showComments);
@@ -63,7 +81,10 @@ export default function PostCard({ post, currentUserId }: { post: any; currentUs
 
     try {
       const res = await fetch(`/api/posts/${post._id}/like`, { method: "POST" });
-      if (!res.ok) throw new Error("Failed to toggle like");
+      if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Failed to toggle like: ${res.status} - ${text}`);
+      }
       const data = await res.json();
       setLikesCount(data.likes);
       setHasLiked(data.hasLiked);
@@ -76,12 +97,12 @@ export default function PostCard({ post, currentUserId }: { post: any; currentUs
   };
 
   return (
-    <div className="bg-white border border-[#ae8563]/20 rounded-xl shadow-sm overflow-hidden mb-4">
+    <div id={`post-${post._id}`} className="bg-white border border-[#ae8563]/20 rounded-xl shadow-sm overflow-hidden mb-4 scroll-mt-24">
       <div className="p-4 flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-[#6b4b34] border border-[#ae8563]/10 overflow-hidden shrink-0">
           {post.author?.avatar ? <img src={post.author.avatar} alt="avatar" className="w-full h-full object-cover" /> : post.author?.name?.charAt(0) || "?"}
         </div>
-        <div>
+        <div className="flex-1">
           <p className="font-bold text-sm text-[#171717]">
             {post.author?.name || "Unknown User"}
           </p>
@@ -89,6 +110,12 @@ export default function PostCard({ post, currentUserId }: { post: any; currentUs
             {new Date(post.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
           </p>
         </div>
+        {post.author?._id !== currentUserId && (
+           <Link href={`/messages?userId=${post.author?._id}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#ae8563] bg-[#ae8563]/10 hover:bg-[#ae8563] hover:text-white transition-colors">
+               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+               Message
+           </Link>
+        )}
       </div>
       
       <div className="px-4 pb-3">
@@ -98,8 +125,11 @@ export default function PostCard({ post, currentUserId }: { post: any; currentUs
       </div>
 
       {post.mediaUrl && (
-        <div className="w-full bg-[#fcf9f5] relative flex items-center justify-center border-y border-[#ae8563]/10 overflow-hidden max-h-[500px]">
-          <img src={post.mediaUrl} alt="Post media" className="w-full h-auto object-contain cursor-pointer transition-transform hover:scale-[1.01]" />
+        <div 
+          onClick={() => setIsLightboxOpen(true)}
+          className="w-full bg-[#fcf9f5] relative flex items-center justify-center border-y border-[#ae8563]/10 overflow-hidden max-h-[500px]"
+        >
+          <img src={post.mediaUrl} alt="Post media" className="w-full h-auto object-contain cursor-pointer transition-transform duration-300 hover:scale-[1.02]" />
         </div>
       )}
 
@@ -173,6 +203,29 @@ export default function PostCard({ post, currentUserId }: { post: any; currentUs
             )}
           </div>
         </div>
+      )}
+
+      {isLightboxOpen && post.mediaUrl && (
+         <div 
+           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in"
+           onClick={() => setIsLightboxOpen(false)}
+         >
+           <button 
+             className="absolute top-6 right-6 text-white hover:text-gray-300 bg-black/50 rounded-full p-2"
+             onClick={(e) => {
+                 e.stopPropagation();
+                 setIsLightboxOpen(false);
+             }}
+           >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+           </button>
+           <img 
+             src={post.mediaUrl} 
+             alt="Post media fullscreen" 
+             className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl scale-animation"
+             onClick={(e) => e.stopPropagation()} 
+           />
+         </div>
       )}
     </div>
   );

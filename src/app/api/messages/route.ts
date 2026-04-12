@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Message from "@/models/Message";
 import User from "@/models/User";
+import { encrypt, decrypt } from "@/lib/encryption";
 
 export async function GET() {
   try {
@@ -10,12 +11,18 @@ export async function GET() {
     if (!session?.user?.email) return NextResponse.json(null, { status: 401 });
 
     await connectToDatabase();
-    const currentUser = await User.findOne({ email: session.user.email }).lean();
+    const currentUser = await User.findOne({ email: session.user.email }).lean() as any;
+    if (!currentUser) return NextResponse.json(null, { status: 404 });
     
     // Find all distinct users the current user has messaged with
     const messages = await Message.find({
         $or: [{ sender: currentUser._id }, { receiver: currentUser._id }]
     }).sort({ createdAt: -1 }).populate('sender receiver', 'name avatar email').lean() as any[];
+
+    // Decrypt all contents
+    messages.forEach(msg => {
+       msg.content = decrypt(msg.content);
+    });
 
     // Group by conversation partner
     const conversationsMap = new Map();
@@ -49,15 +56,18 @@ export async function POST(req: Request) {
     const { receiverId, content } = await req.json();
 
     await connectToDatabase();
-    const currentUser = await User.findOne({ email: session.user.email });
+    const currentUser = await User.findOne({ email: session.user.email }) as any;
+    if (!currentUser) return NextResponse.json(null, { status: 404 });
     
     const message = await Message.create({
         sender: currentUser._id,
         receiver: receiverId,
-        content
+        content: encrypt(content)
     });
 
-    const populatedMessage = await message.populate('sender receiver', 'name avatar');
+    const populatedMessage = await message.populate('sender receiver', 'name avatar email');
+    // Decrypt the response for the immediate frontend client state
+    populatedMessage.content = content;
     return NextResponse.json(populatedMessage, { status: 201 });
   } catch(err) {
       return NextResponse.json({ message: "Error" }, { status: 500 });

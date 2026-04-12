@@ -3,11 +3,13 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import Otp from "@/models/Otp";
 
 const registerSchema = z.object({
   name: z.string().min(2).max(80),
   email: z.string().email(),
   password: z.string().min(6).max(100),
+  otp: z.string().length(6, "Code must be 6 digits"),
 });
 
 export async function POST(request: Request) {
@@ -24,12 +26,23 @@ export async function POST(request: Request) {
       );
     }
 
+    const otpRecord = await Otp.findOne({ email: data.email });
+    if (!otpRecord) {
+        return NextResponse.json({ message: "Your OTP session expired. Please request a new code." }, { status: 400 });
+    }
+    if (otpRecord.otp !== data.otp) {
+        return NextResponse.json({ message: "Incorrect OTP code." }, { status: 401 });
+    }
+
     const hashed = await bcrypt.hash(data.password, 10);
     await User.create({
       name: data.name,
       email: data.email,
       password: hashed,
     });
+
+    // Cleanup successful OTP sequence
+    await Otp.deleteMany({ email: data.email });
 
     return NextResponse.json({ message: "User created" }, { status: 201 });
   } catch (error) {

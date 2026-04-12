@@ -25,19 +25,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const userId = dbUser._id.toString();
-    const hasLiked = post.likes.some((id: any) => id.toString() === userId);
+    const currentLikes = post.likes || [];
+    const hasLiked = currentLikes.some((likedId: any) => likedId.toString() === userId);
 
     if (hasLiked) {
-      post.likes = post.likes.filter((id: any) => id.toString() !== userId);
+      post.likes = currentLikes.filter((likedId: any) => likedId.toString() !== userId);
     } else {
-      post.likes.push(userId);
+      post.likes = [...currentLikes, userId];
     }
 
     await post.save();
 
     return NextResponse.json({ message: "Success", likes: post.likes.length, hasLiked: !hasLiked }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Like error:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ message: error.message || "Internal server error" }, { status: 500 });
   }
 }

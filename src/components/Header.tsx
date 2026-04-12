@@ -2,6 +2,7 @@ import Link from "next/link";
 import Logo from "./Logo";
 import { auth } from "@/auth";
 import SignOutButton from "@/components/SignOutButton";
+import UnreadBadge from "@/components/UnreadBadge";
 
 export default async function Header() {
   const session = await auth();
@@ -31,9 +32,10 @@ export default async function Header() {
           {session?.user && (
             <Link
               href="/messages"
-              className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
+              className="relative hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
             >
               Messages
+              <UnreadBadge />
             </Link>
           )}
 

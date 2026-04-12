@@ -43,8 +43,8 @@ export default async function NetworkPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recommendations.map(org => (
               <div key={org._id.toString()} className="bg-white border border-[#ae8563]/20 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1">
-                <div className="w-14 h-14 bg-[#fffaf4] rounded-xl border border-[#ae8563]/10 flex items-center justify-center text-2xl font-bold text-[#ae8563] mb-4">
-                    {org.name.charAt(0)}
+                <div className="w-14 h-14 bg-[#fffaf4] rounded-xl border border-[#ae8563]/10 flex items-center justify-center text-2xl font-bold text-[#ae8563] mb-4 overflow-hidden">
+                    {org.imageUrl ? <img src={org.imageUrl} alt={org.name} className="w-full h-full object-cover"/> : org.name.charAt(0)}
                 </div>
                 <h3 className="font-bold text-lg text-[#171717]">{org.name}</h3>
                 <p className="text-xs bg-[#f2e9e1] text-[#6b4b34] px-2 py-1 rounded inline-block mt-1 mb-3 font-semibold">{org.type}</p>
@@ -53,9 +53,11 @@ export default async function NetworkPage() {
                     {org.location}
                 </p>
                 <p className="text-sm text-gray-700 line-clamp-2 mb-5 leading-relaxed">{org.description}</p>
-                <button className="w-full py-2.5 bg-[#ae8563]/10 text-[#ae8563] font-bold text-sm rounded-lg hover:bg-[#ae8563] hover:text-white transition-colors">
-                  Follow Impact
-                </button>
+                {org.website && (
+                    <a href={org.website.startsWith('http') ? org.website : `https://${org.website}`} target="_blank" rel="noopener noreferrer" className="block text-center w-full py-2.5 bg-[#ae8563]/10 text-[#ae8563] font-bold text-sm rounded-lg hover:bg-[#ae8563] hover:text-white transition-colors">
+                      Follow Impact
+                    </a>
+                )}
               </div>
             ))}
           </div>
@@ -73,8 +75,8 @@ export default async function NetworkPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {people.map(person => (
               <div key={person._id.toString()} className="bg-white border border-[#ae8563]/20 rounded-xl p-5 shadow-sm text-center hover:shadow-md transition-shadow">
-                 <div className="w-20 h-20 bg-[#fcf9f5] rounded-full mx-auto border-[3px] border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] text-2xl mb-4">
-                    {person.name.charAt(0)}
+                 <div className="w-20 h-20 bg-[#fcf9f5] rounded-full mx-auto border-[3px] border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] text-2xl mb-4 overflow-hidden">
+                    {person.avatar ? <img src={person.avatar} alt={person.name} className="w-full h-full object-cover"/> : person.name.charAt(0)}
                  </div>
                  <h3 className="font-bold text-[#171717]">{person.name}</h3>
                  <p className="text-xs text-gray-400 mt-1 truncate">{person.location || "Global Citizen"}</p>

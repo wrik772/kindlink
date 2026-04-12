@@ -1,60 +1,40 @@
-import SectionHeader from "@/components/SectionHeader";
+export default function HelpCenterPage() {
+  return (
+    <div className="bg-[#fcf9f5] min-h-screen py-16 px-4">
+      <div className="max-w-3xl mx-auto bg-white p-10 rounded-2xl shadow-sm border border-[#ae8563]/20">
+        <h1 className="text-4xl font-bold text-[#171717] mb-4">Help Center</h1>
+        <p className="text-gray-500 mb-8 border-b border-gray-100 pb-8">Find answers to the most common questions about networking and using KindLink.</p>
 
-export default function HelpPage() {
-    const faqs = [
-        {
-            question: "How do I know my donation is safe?",
-            answer: "We use industry-standard encryption for all transactions. Additionally, every NGO and shelter on our platform goes through a rigorous verification process."
-        },
-        {
-            question: "Can I donate anonymously?",
-            answer: "Yes, you can choose to make your donation anonymous during the checkout process. Your name will not be displayed publicly."
-        },
-        {
-            question: "Is my donation tax-deductible?",
-            answer: "Most donations on KindLink are eligible for tax exemption under Section 80G. You will receive a tax receipt immediately after your donation."
-        },
-        {
-            question: "How can I volunteer?",
-            answer: "Navigate to the 'Volunteer' section on any cause page or check our 'Get Involved' page to see open opportunities near you."
-        },
-        {
-            question: "What percentage of my donation goes to the cause?",
-            answer: "We take valid pride in our low overheads. 95% of your donation goes directly to the beneficiary. 5% is used for platform maintenance and payment processing fees."
-        },
-    ];
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-xl font-bold text-[#6b4b34] mb-2">How do I find local NGOs to support?</h2>
+            <p className="text-gray-700 leading-relaxed">
+              When you complete your onboarding profile, you provide a geographical location and select your core causes (e.g., Education, Environment). Our platform's Recommendation Engine automatically maps your profile to registered NGOs matching those exact criteria, which will seamlessly appear on your Dashboard, Feed sidebar, and Network page.
+            </p>
+          </div>
 
-    return (
-        <div className="py-16 md:py-24 max-w-4xl mx-auto px-4">
-            <SectionHeader
-                title="Help Center"
-                subtitle="Frequently asked questions and support resources."
-                centered
-            />
+          <div>
+            <h2 className="text-xl font-bold text-[#6b4b34] mb-2">What is the purpose of the Social Feed?</h2>
+            <p className="text-gray-700 leading-relaxed">
+              The Feed acts as your continuous digital resume and networking board for societal impact. You and NGOs can post media updates about volunteer events, community drives, or recent achievements. You can interact via likes and comments to validate peer efforts and stay updated.
+            </p>
+          </div>
 
-            <div className="space-y-6">
-                {faqs.map((faq, index) => (
-                    <div key={index} className="bg-white rounded-xl border border-[#ae8563]/20 overflow-hidden">
-                        <details className="group">
-                            <summary className="flex justify-between items-center font-bold cursor-pointer list-none p-6 text-[#171717] hover:bg-[#fffaf4] transition-colors">
-                                <span>{faq.question}</span>
-                                <span className="transition group-open:rotate-180">
-                                    <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                                </span>
-                            </summary>
-                            <div className="text-gray-600 px-6 pb-6 pt-0 leading-relaxed">
-                                {faq.answer}
-                            </div>
-                        </details>
-                    </div>
-                ))}
-            </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#6b4b34] mb-2">How do I earn Badges?</h2>
+            <p className="text-gray-700 leading-relaxed">
+              Gamification Badges serve as proof of your engagement with the community. As you publish posts and receive interactions (likes/comments) from other peers and recognized NGOs, the system automatically computes your impact score and awards milestone badges visible on your public network profile.
+            </p>
+          </div>
 
-            <div className="mt-16 text-center bg-[#fffaf4] p-8 rounded-xl">
-                <h3 className="text-xl font-bold text-[#ae8563] mb-2">Still have questions?</h3>
-                <p className="text-gray-600 mb-6">We’re here to help. Reach out to our support team.</p>
-                <a href="/contact" className="btn-primary">Contact Support</a>
-            </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#6b4b34] mb-2">How does direct messaging work?</h2>
+            <p className="text-gray-700 leading-relaxed">
+              You can instantly establish communication with any peer in your Network tab or through feed interaction. Navigate to the Messages tab to view an active ledger of your professional communications and organize ongoing volunteer coordination.
+            </p>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

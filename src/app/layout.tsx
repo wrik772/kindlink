@@ -43,6 +43,7 @@ export const metadata: Metadata = {
 };
 
 import { Providers } from "@/components/Providers";
+import LiveToaster from "@/components/LiveToaster";
 
 export default function RootLayout({
   children,
@@ -58,6 +59,7 @@ export default function RootLayout({
           <Header />
           <main className="mx-auto max-w-6xl px-4 flex-1">{children}</main>
           <Footer />
+          <LiveToaster />
         </Providers>
       </body>
     </html>

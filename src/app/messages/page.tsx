@@ -15,11 +15,13 @@ function MessagesInbox() {
   const [activePartnerData, setActivePartnerData] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages.length]);
 
   // Load conversations
   useEffect(() => {
@@ -45,17 +47,42 @@ function MessagesInbox() {
   }, [status, initialPartnerId]);
 
   // Load active conversation messages
-  useEffect(() => {
+  const fetchMessages = () => {
      if (activePartnerId && status === "authenticated") {
         fetch(`/api/messages/${activePartnerId}`).then(res => res.json()).then(data => {
             if (Array.isArray(data)) {
                 setMessages(data);
                 const conv = conversations.find(c => c.partner._id === activePartnerId);
                 if (conv) setActivePartnerData(conv.partner);
+                // Clear local unread status since db handles it upon fetch
+                setConversations(prev => prev.map(c => c.partner._id === activePartnerId ? { ...c, unreadCount: 0 } : c));
             }
         });
      }
+  };
+
+  useEffect(() => {
+     fetchMessages();
   }, [activePartnerId, status]);
+
+  // Real-time Emulation Polling
+  useEffect(() => {
+      if (status !== "authenticated") return;
+      
+      const pollAll = () => {
+          fetch('/api/messages').then(res => res.json()).then(data => {
+              if (data && Array.isArray(data)) setConversations(data);
+          });
+          if (activePartnerId) {
+             fetch(`/api/messages/${activePartnerId}`).then(res => res.json()).then(data => {
+                 if (Array.isArray(data)) setMessages(data);
+             });
+          }
+      };
+
+      const int = setInterval(pollAll, 4000); // 4 sec
+      return () => clearInterval(int);
+  }, [status, activePartnerId]);
 
   const handleSend = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -86,11 +113,11 @@ function MessagesInbox() {
   };
 
   return (
-    <div className="py-6 h-[calc(100vh-80px)]">
+    <div className="py-6 h-[calc(100vh-80px)] w-full">
        <div className="bg-white border border-[#ae8563]/20 rounded-2xl shadow-sm h-full flex overflow-hidden">
           {/* Left Sidebar: Conversations */}
-          <div className="w-1/3 border-r border-gray-100 flex flex-col bg-gray-50/30">
-             <div className="p-4 border-b border-gray-100 bg-white">
+          <div className="w-[300px] lg:w-[350px] border-r border-[#ae8563]/10 flex flex-col bg-white">
+             <div className="p-5 border-b border-[#ae8563]/10 bg-white/50 backdrop-blur-md">
                  <h2 className="font-bold text-lg text-[#171717]">Inbox</h2>
              </div>
              <div className="flex-1 overflow-y-auto">
@@ -127,7 +154,7 @@ function MessagesInbox() {
           <div className="flex-1 flex flex-col bg-white">
              {activePartnerId ? (
                  <>
-                    <div className="p-4 border-b border-gray-100 flex items-center justify-between shadow-sm z-10">
+                    <div className="p-4 border-b border-[#ae8563]/10 flex items-center justify-between shadow-[0_4px_10px_-4px_rgba(0,0,0,0.05)] z-10 bg-white">
                          <div className="flex items-center gap-3">
                              <div className="w-10 h-10 bg-[#fcf9f5] rounded-full border border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] overflow-hidden">
                                  {activePartnerData?.avatar ? <img src={activePartnerData.avatar} className="w-full h-full object-cover"/> : activePartnerData?.name?.charAt(0) || "?"}
@@ -139,7 +166,7 @@ function MessagesInbox() {
                          </div>
                     </div>
                     
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#fcf9f5]/30">
+                    <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#fcf9f5]/50 shadow-inner">
                         {messages.length === 0 ? (
                             <div className="text-center text-sm text-gray-400 py-20 flex flex-col items-center">
                                 <div className="w-16 h-16 bg-white rounded-full border border-gray-100 flex items-center justify-center mb-4 text-2xl">👋</div>
@@ -149,15 +176,14 @@ function MessagesInbox() {
                             messages.map((msg, i) => {
                                 const isMe = msg.sender?.email === session?.user?.email;
                                 return (
-                                    <div key={msg._id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[70%] rounded-2xl px-5 py-2.5 text-sm ${isMe ? 'bg-[#ae8563] text-white rounded-br-none shadow-sm' : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'}`}>
+                                    <div key={msg._id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in-up`}>
+                                        <div className={`max-w-[70%] rounded-2xl px-5 py-2.5 text-sm ${isMe ? 'bg-gradient-to-br from-[#ae8563] to-[#967050] text-white rounded-br-none shadow-md' : 'bg-white border border-[#ae8563]/10 text-gray-800 rounded-bl-none shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]'}`}>
                                             {msg.content}
                                         </div>
                                     </div>
                                 )
                             })
                         )}
-                        <div ref={messagesEndRef} />
                     </div>
 
                     <div className="p-4 border-t border-gray-100 bg-white">
@@ -178,9 +204,13 @@ function MessagesInbox() {
                     </div>
                  </>
              ) : (
-                 <div className="flex-1 flex items-center justify-center flex-col text-[#ae8563]/50">
-                     <svg className="w-20 h-20 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                     <p className="font-semibold">Select a conversation to start messaging</p>
+                 <div className="flex-1 flex items-center justify-center flex-col bg-gradient-to-b from-white to-[#fcf9f5]/50">
+                    <div className="w-24 h-24 bg-[#ae8563]/10 rounded-full flex items-center justify-center mb-6">
+                        <svg className="w-12 h-12 text-[#ae8563]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-[#171717] mb-2">Your Professional Inbox</h2>
+                    <p className="text-gray-500 text-center max-w-[280px] leading-relaxed text-sm">Select a conversation or discover new peers on the Feed to start networking.</p>
+                    <Link href="/home" className="mt-8 px-6 py-2.5 bg-[#ae8563] text-white font-bold rounded-full hover:bg-[#8c6746] transition-transform hover:scale-105 shadow-md">Explore Feed</Link>
                  </div>
              )}
           </div>

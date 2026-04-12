@@ -14,7 +14,7 @@ export default function Footer() {
             <span className="text-xl font-bold">KindLink</span>
           </div>
           <p className="text-sm text-[#6b4b34]/80 leading-relaxed">
-            Connecting NGOs, shelters, and donors to create a world where every help reaches the right hand.
+            A dedicated social network for individuals, NGOs, and volunteers to seamlessly connect, network, and amplify real-world societal impact.
           </p>
         </div>
 

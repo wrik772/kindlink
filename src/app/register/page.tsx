@@ -6,7 +6,8 @@ import Link from "next/link";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", otp: "" });
+  const [step, setStep] = useState<1 | 2>(1);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +17,31 @@ export default function RegisterPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const onStep1Submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("submitting");
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await fetch("/api/register/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+
+      setStep(2);
+      setSuccess("Verification code sent! Please check your email.");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setStatus("idle");
+    }
+  };
+
+  const onStep2Submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus("submitting");
     setError(null);
@@ -29,16 +54,13 @@ export default function RegisterPage() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Failed to register");
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to register");
 
-      setSuccess("Account created! Redirecting to login...");
-      setForm({ name: "", email: "", password: "" });
+      setSuccess("Account instantly verified & created! Redirecting to login...");
       setTimeout(() => router.push("/login"), 1200);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setStatus("idle");
     }
@@ -69,7 +91,8 @@ export default function RegisterPage() {
               <p className="text-gray-500">Join KindLink and start sharing your impact today.</p>
             </div>
             
-            <form onSubmit={onSubmit} className="space-y-5">
+            {step === 1 ? (
+            <form onSubmit={onStep1Submit} className="space-y-5 animate-fade-in">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-semibold text-gray-700">
                   Full Name
@@ -129,16 +152,56 @@ export default function RegisterPage() {
               </div>
 
               {error && <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-100">{error}</div>}
-              {success && <div className="p-3 text-sm text-green-600 bg-green-50 rounded-lg border border-green-100">{success}</div>}
               
               <button
                 type="submit"
                 disabled={status === "submitting"}
                 className="w-full rounded-xl btn-primary py-3.5 font-semibold text-sm hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-xl shadow-[#ae8563]/20"
               >
-                {status === "submitting" ? "Creating account..." : "Sign up"}
+                {status === "submitting" ? "Securing channel..." : "Continue"}
               </button>
             </form>
+            ) : (
+             <form onSubmit={onStep2Submit} className="space-y-5 animate-fade-in mt-6">
+                <div className="bg-[#fcf9f5] border border-[#ae8563]/20 p-4 rounded-xl text-center mb-4">
+                   <p className="text-sm font-semibold text-[#6b4b34]">Enter the 6-digit code</p>
+                   <p className="text-xs text-gray-500 mt-1">We sent an email to <span className="font-bold text-[#ae8563]">{form.email}</span></p>
+                </div>
+                
+                <div className="space-y-2">
+                  <input
+                    id="otp"
+                    type="text"
+                    maxLength={6}
+                    value={form.otp}
+                    onChange={(e) => handleChange("otp", e.target.value.replace(/\D/g, ''))}
+                    placeholder="000000"
+                    required
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-center text-2xl tracking-[0.5em] font-mono outline-none transition-all placeholder:text-gray-300 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
+                  />
+                </div>
+
+                {error && <div className="p-3 text-center text-sm text-red-600 bg-red-50 rounded-lg border border-red-100">{error}</div>}
+                {success && <div className="p-3 text-center text-sm text-green-600 bg-green-50 rounded-lg border border-green-100">{success}</div>}
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setStep(1); setError(null); setSuccess(null); }}
+                    className="flex-1 rounded-xl bg-gray-100 text-gray-700 py-3.5 font-semibold text-sm hover:bg-gray-200 transition-all font-mono"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={status === "submitting" || form.otp.length !== 6}
+                    className="flex-[2] rounded-xl btn-primary py-3.5 font-semibold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-xl shadow-[#ae8563]/20"
+                  >
+                    {status === "submitting" ? "Verifying..." : "Verify & Create Account"}
+                  </button>
+                </div>
+             </form>
+            )}
 
             <p className="text-center text-sm text-gray-600">
               Already have an account?{" "}
