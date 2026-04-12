@@ -16,12 +16,7 @@ export default async function Header() {
             KindLink
           </div>
         </Link>
-          <Link
-            href="/home"
-            className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
-          >
-            Feed
-          </Link>
+        <nav className="flex items-center gap-6 text-sm font-medium">
           {session?.user && (
             <>
               <Link
