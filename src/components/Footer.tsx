@@ -1,8 +1,47 @@
+"use client";
+
 import Link from "next/link";
 import Logo from "./Logo";
+import { useState } from "react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setStatus("loading");
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setStatus("success");
+        setMessage("Awesome! You're added to the list.");
+        setEmail("");
+      } else {
+        setStatus("error");
+        setMessage(data.message || "Failed to subscribe");
+      }
+    } catch (err) {
+      setStatus("error");
+      setMessage("An unexpected error occurred.");
+    }
+    
+    // Clear message dynamically
+    setTimeout(() => {
+      setStatus("idle");
+      setMessage("");
+    }, 4000);
+  };
 
   return (
     <footer className="w-full bg-[#fcf9f5] border-t border-[#ae8563]/20 text-[#6b4b34] pt-16 pb-8">
@@ -44,18 +83,30 @@ export default function Footer() {
           <p className="text-sm text-[#6b4b34]/80 mb-4">
             Subscribe to our newsletter for the latest updates and impact stories.
           </p>
-          <form className="flex gap-2">
-            <input
-              type="email"
-              placeholder="Email address"
-              className="flex-1 rounded-md border border-[#d2ae88] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#ae8563] bg-white"
-            />
-            <button
-              type="button"
-              className="bg-[#ae8563] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#967050] transition-colors"
-            >
-              Join
-            </button>
+          <form onSubmit={handleSubscribe} className="flex flex-col gap-2 relative">
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email address"
+                required
+                disabled={status === "loading"}
+                className="flex-1 rounded-md border border-[#d2ae88] px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#ae8563] bg-white disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="bg-[#ae8563] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#967050] transition-colors disabled:opacity-50"
+              >
+                {status === "loading" ? "..." : "Join"}
+              </button>
+            </div>
+            {message && (
+              <div className={`text-xs mt-1 absolute -bottom-5 ${status === "success" ? "text-green-600 font-medium" : "text-red-500"}`}>
+                {message}
+              </div>
+            )}
           </form>
         </div>
       </div>

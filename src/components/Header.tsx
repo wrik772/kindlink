@@ -16,27 +16,34 @@ export default async function Header() {
             KindLink
           </div>
         </Link>
-        <nav className="flex items-center gap-6 text-sm font-medium">
           <Link
             href="/home"
             className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
           >
             Feed
           </Link>
-          <Link
-            href="/network"
-            className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
-          >
-            Network
-          </Link>
           {session?.user && (
-            <Link
-              href="/messages"
-              className="relative hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
-            >
-              Messages
-              <UnreadBadge />
-            </Link>
+            <>
+              <Link
+                href="/home"
+                className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
+              >
+                Feed
+              </Link>
+              <Link
+                href="/network"
+                className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
+              >
+                Network
+              </Link>
+              <Link
+                href="/messages"
+                className="relative hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
+              >
+                Messages
+                <UnreadBadge />
+              </Link>
+            </>
           )}
 
           <div className="flex items-center gap-3">
