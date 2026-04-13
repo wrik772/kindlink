@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Post from "@/models/Post";
 import { redirect } from "next/navigation";
 import PostCard from "@/components/Feed/PostCard";
+import PhoneNumberEditor from "@/components/Dashboard/PhoneNumberEditor";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -53,8 +54,12 @@ export default async function DashboardPage() {
           )}
           
           <h1 className="text-2xl font-bold text-[#171717] mt-4">{dbUser.name}</h1>
-          <p className="text-sm text-gray-500 font-medium mb-6 uppercase tracking-wider">{dbUser.location}</p>
+          <p className="text-sm text-gray-500 font-medium mb-2 uppercase tracking-wider">{dbUser.location}</p>
           
+          <div className="text-left mb-6">
+             <PhoneNumberEditor initialPhone={dbUser.phoneNumber} />
+          </div>
+
           <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-6">
             <div className="bg-[#fcf9f5] rounded-xl py-4">
               <p className="text-3xl font-black text-[#ae8563]">{totalPosts}</p>
@@ -112,7 +117,7 @@ export default async function DashboardPage() {
             </div>
          ) : (
             posts.map((post: any) => (
-              <PostCard key={post._id} post={post} currentUserId={dbUser._id.toString()} />
+              <PostCard key={post._id} post={post} currentUserId={dbUser._id.toString()} isEditable={true} />
             ))
          )}
       </div>

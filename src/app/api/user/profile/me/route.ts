@@ -15,3 +15,27 @@ export async function GET() {
     return NextResponse.json({ message: "Error" }, { status: 500 });
   }
 }
+
+export async function PUT(req: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) return NextResponse.json(null, { status: 401 });
+
+    const body = await req.json();
+    await connectToDatabase();
+    
+    const updateData: any = {};
+    if (body.phoneNumber !== undefined) updateData.phoneNumber = body.phoneNumber;
+    
+    // Can be expanded to location, interests, etc.
+    const user = await User.findOneAndUpdate(
+       { email: session.user.email },
+       { $set: updateData },
+       { new: true }
+    );
+    
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Error" }, { status: 500 });
+  }
+}

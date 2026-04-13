@@ -14,27 +14,43 @@ export default function LiveToaster() {
 
 
     const checkLatestPost = async () => {
+      if (!session?.user?.email) return; // Forbid if not logged in
       try {
         const res = await fetch("/api/posts/latest", { cache: 'no-store' });
         if (!res.ok) return;
         const post = await res.json();
         if (!post || !post._id) return;
 
+        // Check local storage to ensure it's STRICTLY new across tabs/reloads
+        const localStorageId = localStorage.getItem("kindlink_toast_latest");
+        if (localStorageId === post._id) return; // We've explicitly seen this specific post already
+
+        // Enforce chronological recency (e.g., if the post is over 5 minutes old, it's not a "Live" alert)
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const postDate = new Date(post.createdAt);
+        const isActuallyRecent = postDate > fiveMinutesAgo;
+
         setLastPostId((prevId) => {
-          if (prevId === null) {
-            // First load initialization
-            return post._id as string;
+          if (prevId === null || prevId === post._id) {
+             // Init or same post
+             localStorage.setItem("kindlink_toast_latest", post._id);
+             return post._id;
           }
+          
           if (prevId !== post._id && post.author?.email !== session?.user?.email) {
-            // It's a new post by someone else!
-            setToast({
-              id: post._id,
-              name: post.author?.name || "Someone",
-              content: post.content || "Shared a new update",
-            });
-            // Auto hide after 6 seconds
-            setTimeout(() => setToast(null), 6000);
-            return post._id as string;
+            // It's a brand new post compared to what we knew, BUT only toast if it's hot
+            localStorage.setItem("kindlink_toast_latest", post._id);
+            
+            if (isActuallyRecent) {
+                setToast({
+                  id: post._id,
+                  name: post.author?.name || "Someone",
+                  content: post.content || "Shared a new update",
+                });
+                setTimeout(() => setToast(null), 6000);
+            }
+            
+            return post._id;
           }
           return prevId;
         });
@@ -50,7 +66,7 @@ export default function LiveToaster() {
     return () => clearInterval(interval);
   }, [session?.user?.email]);
 
-  if (!toast) return null;
+  if (!session?.user?.email || !toast) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 transform transition-all duration-500 hover:-translate-y-1">

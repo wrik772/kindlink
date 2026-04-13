@@ -7,7 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import RecommendationPanel from "@/components/RecommendationPanel";
 import CreatePost from "@/components/Feed/CreatePost";
-import PostCard from "@/components/Feed/PostCard";
+import SearchBar from "@/components/Feed/SearchBar";
+import LiveFeedList from "@/components/Feed/LiveFeedList";
 export const dynamic = "force-dynamic";
 
 export default async function HomeFeedPage() {
@@ -57,19 +58,11 @@ export default async function HomeFeedPage() {
 
       {/* Middle Column: Feed */}
       <div className="col-span-1 md:col-span-8 lg:col-span-5 space-y-6">
+        <SearchBar />
         <CreatePost userInitial={dbUser.name.charAt(0)} userAvatar={dbUser.avatar} />
 
-        {/* Post Feed */}
-        <div className="space-y-4">
-          {posts.map((post: any) => (
-            <PostCard key={post._id.toString()} post={post} currentUserId={dbUser._id.toString()} />
-          ))}
-          {posts.length === 0 && (
-              <div className="text-center py-12 text-gray-500 text-sm border border-dashed border-[#ae8563]/30 rounded-xl bg-white">
-                  No posts yet in your network. Be the first to share!
-              </div>
-          )}
-        </div>
+        {/* Real-time Polling Post Feed */}
+        <LiveFeedList initialPosts={posts} currentUserId={dbUser._id.toString()} />
       </div>
 
 

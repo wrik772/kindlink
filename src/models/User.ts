@@ -6,7 +6,10 @@ export interface UserDocument extends mongoose.Document {
   password: string;
   avatar?: string;
   location?: string;
+  phoneNumber?: string;
   interests: string[];
+  friends: mongoose.Types.ObjectId[];
+  friendRequests: { user: mongoose.Types.ObjectId; status: string }[];
   createdAt: Date;
 }
 
@@ -16,8 +19,16 @@ const UserSchema = new Schema<UserDocument>(
     email: { type: String, required: true, trim: true, unique: true },
     password: { type: String, required: true },
     location: { type: String },
+    phoneNumber: { type: String, trim: true },
     interests: [{ type: String }],
     avatar: { type: String },
+    friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    friendRequests: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
+        status: { type: String, enum: ['pending'], default: 'pending' },
+      }
+    ],
   },
   { timestamps: true }
 );

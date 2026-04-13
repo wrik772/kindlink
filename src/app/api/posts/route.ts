@@ -12,10 +12,14 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { content, mediaUrl } = body;
+    const { content, mediaUrl, mediaUrls } = body;
 
     if (!content) {
       return NextResponse.json({ message: "Content is required" }, { status: 400 });
+    }
+    
+    if (mediaUrls && Array.isArray(mediaUrls) && mediaUrls.length > 5) {
+       return NextResponse.json({ message: "Maximum 5 photos allowed" }, { status: 400 });
     }
 
     await connectToDatabase();
@@ -29,6 +33,7 @@ export async function POST(req: Request) {
       author: dbUser._id,
       content,
       mediaUrl: mediaUrl || "",
+      mediaUrls: mediaUrls || [],
       likes: [],
     });
 
