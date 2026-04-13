@@ -4,6 +4,8 @@ import User from "@/models/User";
 import Post from "@/models/Post";
 import Organization from "@/models/Organization";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -15,17 +17,28 @@ export async function GET(req: Request) {
 
     await connectToDatabase();
     
-    // Case-insensitive regex
-    const regex = new RegExp(query, "i");
+    // Case-insensitive regex with a strict Word Boundary (\b). 
+    // This strictly prevents short words like "cat" from accidentally matching inside "eduCATion".
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\b${escapedQuery}`, "i");
 
-    // Search Users (limit 5)
-    const users = await User.find({ name: { $regex: regex } }, 'name avatar location')
+    // Search Users (name or internal interests)
+    const users = await User.find({ 
+        $or: [
+           { name: { $regex: regex } },
+           { interests: { $regex: regex } }
+        ]
+    }, 'name avatar location')
        .limit(5)
        .lean();
 
-    // Search Organizations (limit 5)
+    // Search Organizations (name, type, or causes supported)
     const organizations = await Organization.find({
-       $or: [{ name: { $regex: regex } }, { type: { $regex: regex } }]
+       $or: [
+           { name: { $regex: regex } }, 
+           { type: { $regex: regex } },
+           { supportedCauses: { $regex: regex } }
+       ]
     }, 'name imageUrl type')
        .limit(5)
        .lean();

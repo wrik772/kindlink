@@ -31,8 +31,9 @@ export default function SearchBar() {
 
     const timer = setTimeout(async () => {
       setIsSearching(true);
+      setResults(null); // Wipe previous UI results immediately
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           setResults(data);
