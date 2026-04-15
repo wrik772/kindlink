@@ -44,10 +44,44 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
+        const { searchParams } = new URL(req.url);
+        const city = searchParams.get('city');
+
         await connectToDatabase();
-        // Fetch posts and populate author fields. Lean returns plain JS objects.
+        
+        // If we have a city filter, we use an aggregation pipeline to filter by populated author's location
+        if (city) {
+            const posts = await Post.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'author',
+                        foreignField: '_id',
+                        as: 'author'
+                    }
+                },
+                { $unwind: '$author' },
+                {
+                    $match: {
+                        'author.location': { $regex: new RegExp(city, 'i') }
+                    }
+                },
+                {
+                    $project: {
+                        'author.password': 0,
+                        'author.email': 0,
+                        'author.friendRequests': 0,
+                        'author.friends': 0
+                    }
+                },
+                { $sort: { createdAt: -1 } }
+            ]);
+            return NextResponse.json(posts);
+        }
+
+        // Default: fetch all posts
         const posts = await Post.find()
             .populate('author', 'name avatar')
             .sort({ createdAt: -1 })

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LocationSelector from "@/components/Onboarding/LocationSelector";
 
 export default function EditProfilePage() {
   const { data: session, status } = useSession();
@@ -12,24 +13,50 @@ export default function EditProfilePage() {
   const [form, setForm] = useState({ name: "", location: "", avatar: "", interests: [] as string[] });
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const availableInterests = [
     "Animals", "Education", "Environment", "Hunger", 
     "Disaster Relief", "Elderly Care", "Healthcare", "Women Empowerment"
   ];
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLocationChange = useCallback((loc: string) => {
+    setForm(prev => {
+      if (prev.location === loc) return prev;
+      return { ...prev, location: loc };
+    });
+  }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
          alert("Please select an image smaller than 2MB.");
          return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm({ ...form, avatar: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      
+      setIsUploadingAvatar(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
+        
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+          method: "POST",
+          body: formData
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          setForm({ ...form, avatar: data.secure_url });
+        } else {
+          alert("Failed to upload image to cloud.");
+        }
+      } catch (err) {
+        console.error("Cloudinary upload failed", err);
+      } finally {
+        setIsUploadingAvatar(false);
+      }
     }
   };
 
@@ -94,8 +121,11 @@ export default function EditProfilePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-[#6b4b34] mb-2">Location</label>
-            <input type="text" value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ae8563]/20 focus:border-[#ae8563] transition-all" required />
+            <label className="block text-sm font-bold text-[#6b4b34] mb-3">Location</label>
+            <div className="bg-[#fcf9f5] border border-[#ae8563]/10 p-4 rounded-xl mb-4">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2">Current: {form.location || "Not set"}</p>
+              <LocationSelector onLocationChange={handleLocationChange} />
+            </div>
           </div>
 
           <div>
@@ -142,8 +172,8 @@ export default function EditProfilePage() {
 
           <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
              <Link href="/dashboard" className="px-6 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl transition-colors">Cancel</Link>
-             <button type="submit" disabled={isLoading} className="px-8 py-3 bg-[#ae8563] hover:bg-[#967050] text-white text-sm font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50">
-               {isLoading ? "Saving..." : "Save Changes"}
+             <button type="submit" disabled={isLoading || isUploadingAvatar} className="px-8 py-3 bg-[#ae8563] hover:bg-[#967050] text-white text-sm font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50">
+               {isLoading ? "Saving..." : isUploadingAvatar ? "Uploading..." : "Save Changes"}
              </button>
           </div>
         </form>

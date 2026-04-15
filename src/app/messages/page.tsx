@@ -156,13 +156,13 @@ function MessagesInbox() {
                  <>
                     <div className="p-4 border-b border-[#ae8563]/10 flex items-center justify-between shadow-[0_4px_10px_-4px_rgba(0,0,0,0.05)] z-10 bg-white">
                          <div className="flex items-center gap-3">
-                             <div className="w-10 h-10 bg-[#fcf9f5] rounded-full border border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] overflow-hidden">
+                             <Link href={`/user/${activePartnerId}`} className="w-10 h-10 bg-[#fcf9f5] rounded-full border border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] overflow-hidden hover:opacity-80 transition-opacity">
                                  {activePartnerData?.avatar ? <img src={activePartnerData.avatar} className="w-full h-full object-cover"/> : activePartnerData?.name?.charAt(0) || "?"}
-                             </div>
-                             <div>
-                               <h3 className="font-bold text-[#171717]">{activePartnerData?.name || "Loading..."}</h3>
+                             </Link>
+                             <Link href={`/user/${activePartnerId}`}>
+                               <h3 className="font-bold text-[#171717] hover:underline">{activePartnerData?.name || "Loading..."}</h3>
                                <p className="text-[10px] text-gray-400 uppercase tracking-widest">KindLink Member</p>
-                             </div>
+                             </Link>
                          </div>
                     </div>
                     

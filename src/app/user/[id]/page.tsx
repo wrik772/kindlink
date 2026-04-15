@@ -51,6 +51,20 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
               <h2 className="font-bold text-xl text-[#171717]">{profileUser.name}</h2>
               <p className="text-sm text-gray-500 mb-5">{profileUser.location || "Global Citizen"}</p>
               
+              {/* Metrics Section */}
+              <div className="grid grid-cols-2 gap-2 mb-6 border-y border-gray-50 py-4">
+                  <div className="text-center">
+                      <p className="text-xl font-black text-[#ae8563]">{posts.length}</p>
+                      <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Impacts</p>
+                  </div>
+                  <div className="text-center border-l border-gray-100">
+                      <p className="text-xl font-black text-[#ae8563]">
+                          {posts.reduce((sum: number, p: any) => sum + (p.likes?.length || 0), 0)}
+                      </p>
+                      <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Applause</p>
+                  </div>
+              </div>
+
               <div className="w-full flex flex-col gap-2 mb-6">
                  {isFriend ? (
                      <div className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-bold border border-green-200">✓ Friends</div>
@@ -62,6 +76,31 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                      <FriendActionButton userId={targetId} actionType="send" label="Send Request" className="px-4 py-2 bg-[#ae8563]/10 text-[#ae8563] rounded-lg text-sm font-bold border border-[#ae8563]/20 hover:bg-[#ae8563] hover:text-white transition-colors w-full" />
                  )}
               </div>
+
+              {/* Badges Section */}
+              {(() => {
+                const totalLikes = posts.reduce((sum: number, p: any) => sum + (p.likes?.length || 0), 0);
+                const badges = [];
+                if (posts.length >= 1) badges.push({ name: "Impact Starter", icon: "🌱", color: "text-green-600 bg-green-50 border-green-200" });
+                if (posts.length >= 5) badges.push({ name: "Community Voice", icon: "🗣️", color: "text-blue-600 bg-blue-50 border-blue-200" });
+                if (totalLikes >= 10) badges.push({ name: "Spark of Kindness", icon: "✨", color: "text-yellow-600 bg-yellow-50 border-yellow-200" });
+                
+                if (badges.length === 0) return null;
+
+                return (
+                  <div className="mb-6 text-left">
+                    <p className="text-xs text-gray-500 mb-3 font-bold uppercase tracking-wider">Achievements</p>
+                    <div className="flex flex-wrap gap-1.5">
+                        {badges.map((badge) => (
+                           <div key={badge.name} className={`flex items-center gap-1 px-2 py-1 rounded-md border text-[10px] font-bold ${badge.color}`} title={badge.name}>
+                              <span>{badge.icon}</span>
+                              <span>{badge.name}</span>
+                           </div>
+                        ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="border-t border-gray-100 pt-4 text-left">
                   <p className="text-xs text-gray-500 mb-3 font-bold uppercase tracking-wider">Interests</p>

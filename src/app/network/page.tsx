@@ -69,10 +69,10 @@ export default async function NetworkPage() {
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                  {incomingRequests.map((req: any) => (
                     <div key={req.user._id.toString()} className="bg-white border border-orange-200 rounded-xl p-5 shadow-sm text-center">
-                        <div className="w-16 h-16 bg-orange-100 rounded-full mx-auto flex items-center justify-center font-bold text-orange-600 text-xl mb-3 overflow-hidden">
+                        <Link href={`/user/${req.user._id.toString()}`} className="w-16 h-16 bg-orange-100 rounded-full mx-auto flex items-center justify-center font-bold text-orange-600 text-xl mb-3 overflow-hidden block hover:opacity-80 transition-opacity">
                             {req.user.avatar ? <img src={req.user.avatar} className="w-full h-full object-cover"/> : req.user.name.charAt(0)}
-                        </div>
-                        <h3 className="font-bold text-[#171717]">{req.user.name}</h3>
+                        </Link>
+                        <Link href={`/user/${req.user._id.toString()}`} className="font-bold text-[#171717] hover:underline block">{req.user.name}</Link>
                         <p className="text-xs text-gray-400 mt-1 mb-4">{req.user.location || "Global Citizen"}</p>
                         <div className="flex gap-2 w-full justify-center">
                             <FriendActionButton userId={req.user._id.toString()} actionType="accept" label="Accept" className="bg-[#ae8563] text-white px-4 py-1.5 rounded-md text-sm font-bold flex-1" />
@@ -96,10 +96,10 @@ export default async function NetworkPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {friends.map((person: any) => (
               <div key={person._id.toString()} className="bg-white border border-[#ae8563]/20 rounded-xl p-5 shadow-sm text-center hover:shadow-md transition-shadow relative group">
-                 <div className="w-20 h-20 bg-[#fcf9f5] rounded-full mx-auto border-[3px] border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] text-2xl mb-4 overflow-hidden">
+                 <Link href={`/user/${person._id.toString()}`} className="w-20 h-20 bg-[#fcf9f5] rounded-full mx-auto border-[3px] border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] text-2xl mb-4 overflow-hidden block hover:opacity-80 transition-opacity">
                     {person.avatar ? <img src={person.avatar} alt={person.name} className="w-full h-full object-cover"/> : person.name.charAt(0)}
-                 </div>
-                 <h3 className="font-bold text-[#171717]">{person.name}</h3>
+                 </Link>
+                 <Link href={`/user/${person._id.toString()}`} className="font-bold text-[#171717] hover:underline block">{person.name}</Link>
                  <p className="text-xs text-gray-400 mt-1 truncate">{person.location || "Global Citizen"}</p>
                  <Link href={`/messages?userId=${person._id.toString()}`} className="mt-5 block w-full text-center py-2 bg-[#ae8563]/10 text-[#ae8563] rounded-full text-sm font-bold hover:bg-[#ae8563] hover:text-white transition-colors">
                    Message User
@@ -125,10 +125,10 @@ export default async function NetworkPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {peopleToConnect.map((person: any) => (
               <div key={person._id.toString()} className="bg-white border border-[#ae8563]/20 rounded-xl p-5 shadow-sm text-center hover:shadow-md transition-shadow">
-                 <div className="w-20 h-20 bg-[#fcf9f5] rounded-full mx-auto border-[3px] border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] text-2xl mb-4 overflow-hidden">
+                 <Link href={`/user/${person._id.toString()}`} className="w-20 h-20 bg-[#fcf9f5] rounded-full mx-auto border-[3px] border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] text-2xl mb-4 overflow-hidden block hover:opacity-80 transition-opacity">
                     {person.avatar ? <img src={person.avatar} alt={person.name} className="w-full h-full object-cover"/> : person.name.charAt(0)}
-                 </div>
-                 <h3 className="font-bold text-[#171717]">{person.name}</h3>
+                 </Link>
+                 <Link href={`/user/${person._id.toString()}`} className="font-bold text-[#171717] hover:underline block">{person.name}</Link>
                  <p className="text-xs text-gray-400 mt-1 truncate">{person.location || "Global Citizen"}</p>
                  <div className="mt-5 w-full">
                     <FriendActionButton userId={person._id.toString()} actionType="send" label="Send Request" className="w-full py-2 border-2 border-[#ae8563]/20 text-[#ae8563] rounded-full text-sm font-bold hover:bg-[#ae8563] hover:text-white hover:border-[#ae8563] transition-colors" />

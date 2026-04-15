@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import SectionHeader from "@/components/SectionHeader";
 import Logo from "@/components/Logo";
+import LocationSelector from "@/components/Onboarding/LocationSelector";
 
 export default function OnboardingPage() {
   const { data: session, status } = useSession();
@@ -79,22 +80,11 @@ export default function OnboardingPage() {
             
             {/* Location */}
             <div>
-              <label htmlFor="location" className="block text-sm font-bold text-[#6b4b34] mb-2">
+              <label className="block text-sm font-bold text-[#6b4b34] mb-4">
                 Where are you located?
               </label>
-              <div className="mt-1">
-                <input
-                  id="location"
-                  name="location"
-                  type="text"
-                  required
-                  placeholder="e.g. New Delhi, Mumbai, Bangalore"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#ae8563] focus:border-[#ae8563] sm:text-sm"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-2">This helps us find nearby NGOs and shelters for you.</p>
+              <LocationSelector onLocationChange={setLocation} />
+              <p className="text-xs text-gray-500 mt-4">This helps us find nearby NGOs and shelters for you.</p>
             </div>
 
             {/* Interests */}
