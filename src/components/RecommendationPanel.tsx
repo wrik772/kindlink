@@ -4,16 +4,33 @@ import Organization from "@/models/Organization";
 interface RecommendationPanelProps {
   userLocation: string;
   userInterests: string[];
+  userGeometry?: { type: string, coordinates: number[] };
 }
 
-export default async function RecommendationPanel({ userLocation, userInterests }: RecommendationPanelProps) {
+export default async function RecommendationPanel({ userLocation, userInterests, userGeometry }: RecommendationPanelProps) {
   await connectToDatabase();
 
-  // Find organizations matching user location AND interests
-  const orgs = await Organization.find({
-    location: { $regex: new RegExp(userLocation, "i") },
-    type: { $in: userInterests }
-  }).limit(5).lean() as any[];
+  let orgs = [];
+
+  if (userGeometry && userGeometry.coordinates && userGeometry.coordinates.length === 2) {
+    // 10km radius geospatial search
+    orgs = await Organization.find({
+      geometry: {
+        $nearSphere: {
+          $geometry: { type: "Point", coordinates: userGeometry.coordinates },
+          $maxDistance: 10000 // 10km in meters
+        }
+      },
+      type: { $in: userInterests }
+    }).limit(5).lean() as any[];
+  } else {
+    // Fallback if user hasn't been migrated yet
+    const userCity = userLocation?.split(',')[1]?.trim() || userLocation;
+    orgs = await Organization.find({
+      location: { $regex: new RegExp(userCity, "i") },
+      type: { $in: userInterests }
+    }).limit(5).lean() as any[];
+  }
 
   if (!orgs || orgs.length === 0) {
     return (

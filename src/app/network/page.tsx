@@ -26,11 +26,25 @@ export default async function NetworkPage() {
   const friendsIds = friends.map((f:any) => f._id.toString());
   const incomingReqIds = incomingRequests.map((r:any) => r.user._id.toString());
 
-  // Find NGOs matching location AND interests
-  const recommendations = await Organization.find({
-    location: { $regex: new RegExp(currentUser.location, "i") },
-    type: { $in: currentUser.interests }
-  }).lean() as any[];
+  let recommendations = [];
+  if (currentUser.geometry && currentUser.geometry.coordinates && currentUser.geometry.coordinates.length === 2) {
+    recommendations = await Organization.find({
+      geometry: {
+        $nearSphere: {
+          $geometry: { type: "Point", coordinates: currentUser.geometry.coordinates },
+          $maxDistance: 10000 // 10km in meters
+        }
+      },
+      type: { $in: currentUser.interests }
+    }).lean() as any[];
+  } else {
+    const userCity = currentUser.location?.split(',')[1]?.trim() || currentUser.location;
+    // Find NGOs matching location AND interests
+    recommendations = await Organization.find({
+      location: { $regex: new RegExp(userCity, "i") },
+      type: { $in: currentUser.interests }
+    }).lean() as any[];
+  }
 
   // Find ALL possible users with overlapping interests to recommend
   const rawPeople = await User.find({

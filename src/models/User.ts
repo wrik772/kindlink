@@ -6,6 +6,10 @@ export interface UserDocument extends mongoose.Document {
   password: string;
   avatar?: string;
   location?: string;
+  geometry?: {
+    type: string;
+    coordinates: number[];
+  };
   phoneNumber?: string;
   interests: string[];
   friends: mongoose.Types.ObjectId[];
@@ -19,6 +23,10 @@ const UserSchema = new Schema<UserDocument>(
     email: { type: String, required: true, trim: true, unique: true },
     password: { type: String, required: true },
     location: { type: String },
+    geometry: {
+      type: { type: String, enum: ['Point'], default: 'Point' },
+      coordinates: { type: [Number], default: [0, 0] }
+    },
     phoneNumber: { type: String, trim: true },
     interests: [{ type: String }],
     avatar: { type: String },
@@ -32,6 +40,8 @@ const UserSchema = new Schema<UserDocument>(
   },
   { timestamps: true }
 );
+
+UserSchema.index({ geometry: "2dsphere" });
 
 const User = mongoose.models.User || mongoose.model<UserDocument>("User", UserSchema);
 

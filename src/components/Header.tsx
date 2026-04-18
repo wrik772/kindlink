@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Logo from "./Logo";
 import { auth } from "@/auth";
-import SignOutButton from "@/components/SignOutButton";
-import UnreadBadge from "@/components/UnreadBadge";
+import MobileMenu from "@/components/MobileMenu";
+import DesktopNav from "@/components/DesktopNav";
 
 export default async function Header() {
   const session = await auth();
@@ -16,60 +16,8 @@ export default async function Header() {
             KindLink
           </div>
         </Link>
-        <nav className="flex items-center gap-6 text-sm font-medium">
-          {session?.user && (
-            <>
-              <Link
-                href="/home"
-                className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
-              >
-                Feed
-              </Link>
-              <Link
-                href="/network"
-                className="hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
-              >
-                Network
-              </Link>
-              <Link
-                href="/messages"
-                className="relative hidden sm:block text-[#6b4b34] hover:text-[var(--brand-muesli)] transition-colors"
-              >
-                Messages
-                <UnreadBadge />
-              </Link>
-            </>
-          )}
-
-          <div className="flex items-center gap-3">
-            {!session?.user ? (
-              <>
-                <Link
-                  href="/login"
-                  className="hidden sm:inline-flex text-[#6b4b34] hover:text-[var(--brand-muesli)] font-semibold"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="rounded-full bg-[var(--brand-muesli)] text-white px-5 py-2.5 hover:opacity-90 transition-opacity shadow-sm"
-                >
-                  Join Network
-                </Link>
-              </>
-            ) : (
-              <div className="flex items-center gap-4">
-                <Link
-                  href="/dashboard"
-                  className="hidden sm:inline-flex text-[#6b4b34] hover:text-[var(--brand-muesli)] font-semibold"
-                >
-                  Dashboard
-                </Link>
-                <SignOutButton />
-              </div>
-            )}
-          </div>
-        </nav>
+        <DesktopNav isLoggedIn={!!session?.user} />
+        <MobileMenu isLoggedIn={!!session?.user} />
       </div>
     </header>
   );

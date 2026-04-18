@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import { geocodeLocation } from "@/lib/geocoder";
 
 export async function POST(req: Request) {
   try {
@@ -19,10 +20,21 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
 
+    // Geocode the location
+    const coords = await geocodeLocation(location);
+    const updateData: any = { location, interests };
+    
+    if (coords) {
+      updateData.geometry = {
+        type: 'Point',
+        coordinates: coords
+      };
+    }
+
     // Update the user
     const updatedUser = await User.findOneAndUpdate(
       { email: session.user.email },
-      { location, interests },
+      updateData,
       { new: true }
     );
 

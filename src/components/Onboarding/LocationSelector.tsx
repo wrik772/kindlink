@@ -5,6 +5,7 @@ import { statesOfIndia, citiesByState } from "@/data/india-data";
 
 interface LocationSelectorProps {
   onLocationChange: (location: string) => void;
+  initialLocation?: string;
 }
 
 // Helper to normalize strings to Title Case
@@ -12,7 +13,7 @@ const toTitleCase = (str: string) => {
   return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-export default function LocationSelector({ onLocationChange }: LocationSelectorProps) {
+export default function LocationSelector({ onLocationChange, initialLocation }: LocationSelectorProps) {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedLocality, setSelectedLocality] = useState("");
@@ -20,6 +21,7 @@ export default function LocationSelector({ onLocationChange }: LocationSelectorP
   const [isLoadingLocalities, setIsLoadingLocalities] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Loop prevention: Ref to track last emitted location
   const lastEmittedValue = useRef<string | null>(null);
@@ -38,13 +40,27 @@ export default function LocationSelector({ onLocationChange }: LocationSelectorP
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Reset logic when state changes
+  // Initialize from props
   useEffect(() => {
-    setSelectedCity("");
-    setSelectedLocality("");
-    setLocalities([]);
-    setSearchTerm("");
-  }, [selectedState]);
+    if (initialLocation && !isInitialized) {
+      const parts = initialLocation.split(',').map(p => p.trim());
+      if (parts.length === 3) {
+        const stateMatch = statesOfIndia.find(s => s.toLowerCase() === parts[2].toLowerCase());
+        if (stateMatch) {
+          setSelectedState(stateMatch);
+          const cityMatch = citiesByState[stateMatch]?.find(c => c.toLowerCase() === parts[1].toLowerCase());
+          if (cityMatch) setSelectedCity(cityMatch);
+          else setSelectedCity(parts[1]);
+        }
+        setSearchTerm(parts[0]);
+        setSelectedLocality(parts[0]);
+      } else if (parts.length > 0 && parts[0] !== "") {
+        setSearchTerm(parts[0]);
+        setSelectedLocality(parts[0]);
+      }
+      setIsInitialized(true);
+    }
+  }, [initialLocation, isInitialized]);
 
   // Handle Locality Search (Debounced)
   useEffect(() => {
@@ -106,7 +122,13 @@ export default function LocationSelector({ onLocationChange }: LocationSelectorP
         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">State / UT</label>
         <select
           value={selectedState}
-          onChange={(e) => setSelectedState(e.target.value)}
+          onChange={(e) => {
+            setSelectedState(e.target.value);
+            setSelectedCity("");
+            setSelectedLocality("");
+            setLocalities([]);
+            setSearchTerm("");
+          }}
           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#ae8563]/20 focus:border-[#ae8563] outline-none transition-all"
         >
           <option value="">Select State</option>

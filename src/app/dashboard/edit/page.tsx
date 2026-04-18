@@ -124,7 +124,7 @@ export default function EditProfilePage() {
             <label className="block text-sm font-bold text-[#6b4b34] mb-3">Location</label>
             <div className="bg-[#fcf9f5] border border-[#ae8563]/10 p-4 rounded-xl mb-4">
               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-2">Current: {form.location || "Not set"}</p>
-              <LocationSelector onLocationChange={handleLocationChange} />
+              <LocationSelector onLocationChange={handleLocationChange} initialLocation={form.location} />
             </div>
           </div>
 

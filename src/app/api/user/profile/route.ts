@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
+import { geocodeLocation } from "@/lib/geocoder";
 
 export async function PUT(req: Request) {
   try {
@@ -13,14 +14,27 @@ export async function PUT(req: Request) {
     const { name, location, interests, avatar } = await req.json();
 
     await connectToDatabase();
+    
+    const updateData: any = {
+      ...(name && { name }), 
+      ...(location && { location }), 
+      ...(interests && { interests }),
+      ...(avatar !== undefined && { avatar })
+    };
+
+    if (location) {
+      const coords = await geocodeLocation(location);
+      if (coords) {
+        updateData.geometry = {
+          type: 'Point',
+          coordinates: coords
+        };
+      }
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { email: session.user.email },
-      { $set: { 
-         ...(name && { name }), 
-         ...(location && { location }), 
-         ...(interests && { interests }),
-         ...(avatar !== undefined && { avatar })
-      }},
+      { $set: updateData },
       { new: true }
     );
 

@@ -113,10 +113,10 @@ function MessagesInbox() {
   };
 
   return (
-    <div className="py-6 h-[calc(100vh-80px)] w-full">
-       <div className="bg-white border border-[#ae8563]/20 rounded-2xl shadow-sm h-full flex overflow-hidden">
+    <div className="md:py-6 h-[calc(100vh-80px)] w-full">
+       <div className="bg-white border-x-0 border-y sm:border border-[#ae8563]/20 md:rounded-2xl shadow-sm h-full flex flex-col md:flex-row overflow-hidden">
           {/* Left Sidebar: Conversations */}
-          <div className="w-[300px] lg:w-[350px] border-r border-[#ae8563]/10 flex flex-col bg-white">
+          <div className={`${activePartnerId ? 'hidden md:flex' : 'flex'} w-full md:w-[300px] lg:w-[350px] border-r border-[#ae8563]/10 flex-col bg-white h-full`}>
              <div className="p-5 border-b border-[#ae8563]/10 bg-white/50 backdrop-blur-md">
                  <h2 className="font-bold text-lg text-[#171717]">Inbox</h2>
              </div>
@@ -151,12 +151,15 @@ function MessagesInbox() {
           </div>
 
           {/* Right Panel: Chat */}
-          <div className="flex-1 flex flex-col bg-white">
+          <div className={`${!activePartnerId ? 'hidden md:flex' : 'flex'} flex-1 flex-col bg-white h-full w-full`}>
              {activePartnerId ? (
                  <>
                     <div className="p-4 border-b border-[#ae8563]/10 flex items-center justify-between shadow-[0_4px_10px_-4px_rgba(0,0,0,0.05)] z-10 bg-white">
                          <div className="flex items-center gap-3">
-                             <Link href={`/user/${activePartnerId}`} className="w-10 h-10 bg-[#fcf9f5] rounded-full border border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] overflow-hidden hover:opacity-80 transition-opacity">
+                             <button onClick={() => setActivePartnerId(null)} className="md:hidden text-[#ae8563] pr-2 focus:outline-none">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                             </button>
+                             <Link href={`/user/${activePartnerId}`} className="w-10 h-10 bg-[#fcf9f5] rounded-full border border-[#ae8563]/10 flex items-center justify-center font-bold text-[#ae8563] overflow-hidden hover:opacity-80 transition-opacity flex-shrink-0">
                                  {activePartnerData?.avatar ? <img src={activePartnerData.avatar} className="w-full h-full object-cover"/> : activePartnerData?.name?.charAt(0) || "?"}
                              </Link>
                              <Link href={`/user/${activePartnerId}`}>
