@@ -13,10 +13,15 @@ interface MobileMenuProps {
 export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const isAuthPage = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password";
 
   const getLinkClass = (path: string) => {
     return pathname === path ? "text-lg text-[#6b4b34] font-bold" : "text-lg text-[#ae8563] font-bold";
   };
+
+  const isForgotPass = pathname === "/forgot-password";
+  
+  if (isForgotPass && !isLoggedIn) return null;
 
   return (
     <div className="sm:hidden flex items-center gap-3">

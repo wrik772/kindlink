@@ -18,7 +18,7 @@ export default function DesktopNav({ isLoggedIn }: DesktopNavProps) {
       : "hidden sm:block text-[#ae8563] font-bold hover:text-[#6b4b34] transition-colors";
   };
 
-  const showAuthButtons = pathname !== "/login" && pathname !== "/register";
+  const showAuthButtons = pathname !== "/login" && pathname !== "/register" && pathname !== "/forgot-password";
 
   return (
     <nav className="flex items-center gap-6 text-sm font-medium">

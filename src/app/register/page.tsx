@@ -104,7 +104,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleChange("name", e.target.value)}
                   placeholder="John Doe"
                   required
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
+                  className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
                 />
               </div>
 
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleChange("email", e.target.value)}
                   placeholder="john@example.com"
                   required
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
+                  className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
                 />
               </div>
               <div className="space-y-2">
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                     placeholder="••••••••"
                     required
                     minLength={6}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
+                    className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
                   />
                   <button
                     type="button"

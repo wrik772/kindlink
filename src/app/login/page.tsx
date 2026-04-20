@@ -76,7 +76,7 @@ function LoginForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
+                  className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
                 />
               </div>
               <div className="space-y-2">
@@ -84,7 +84,7 @@ function LoginForm() {
                   <label htmlFor="password" className="text-sm font-semibold text-gray-700">
                     Password
                   </label>
-                  <Link href="#" className="text-sm font-medium text-[#ae8563] hover:text-[var(--brand-muesli)]">Forgot password?</Link>
+                  <Link href="/forgot-password" title="Recover your account" className="text-sm font-medium text-[#ae8563] hover:text-[var(--brand-muesli)]">Forgot password?</Link>
                 </div>
                 <div className="relative">
                   <input
@@ -94,7 +94,7 @@ function LoginForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
+                    className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
                   />
                   <button
                     type="button"
