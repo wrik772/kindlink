@@ -97,46 +97,49 @@ export default function RegisterPage() {
                 <label htmlFor="name" className="text-sm font-semibold text-gray-700">
                   Full Name
                 </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => handleChange("name", e.target.value)}
-                  placeholder="John Doe"
-                  required
-                  className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
-                />
+                  <input
+                    id="name"
+                    type="text"
+                    value={form.name}
+                    autoComplete="name"
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    placeholder="John Doe"
+                    required
+                    className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
+                  />
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-semibold text-gray-700">
                   Email
                 </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder="john@example.com"
-                  required
-                  className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
-                />
+                  <input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    autoComplete="email"
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    placeholder="john@example.com"
+                    required
+                    className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10"
+                  />
               </div>
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-semibold text-gray-700">
                   Password
                 </label>
                 <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={form.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    minLength={6}
-                    className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
-                  />
+                    <input
+                      id="new-password"
+                      type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      autoComplete="new-password"
+                      onChange={(e) => handleChange("password", e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                      className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
+                    />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
