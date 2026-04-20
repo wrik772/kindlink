@@ -127,6 +127,7 @@ export default function ForgotPasswordPage() {
                 required
                 type="email"
                 value={email}
+                autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your registered email"
                 className="w-full bg-[#fcf9f5] border border-[#ae8563]/20 rounded-xl p-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#ae8563]/10 transition-all placeholder:text-gray-400"
@@ -163,10 +164,11 @@ export default function ForgotPasswordPage() {
                 </label>
                 <div className="relative">
                   <input
-                    id="password"
+                    id="new-password"
                     required
                     type={showPassword ? "text" : "password"}
                     value={password}
+                    autoComplete="new-password"
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
                     className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
@@ -190,10 +192,11 @@ export default function ForgotPasswordPage() {
                 </label>
                 <div className="relative">
                   <input
-                    id="confirmPassword"
+                    id="confirm-new-password"
                     required
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
+                    autoComplete="new-password"
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repeat your new password"
                     className="w-full rounded-xl border border-gray-200 bg-[#fcf9f5] px-4 py-3 text-sm outline-none transition-all placeholder:text-gray-400 focus:border-[#ae8563] focus:bg-white focus:ring-4 focus:ring-[#ae8563]/10 pr-10"
