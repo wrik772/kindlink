@@ -112,7 +112,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 mt-12 pt-8 border-t border-[#ae8563]/10 text-center text-xs text-[#6b4b34]/60">
-        <p>© {currentYear} KindLink. All rights reserved. Made with purpose.</p>
+        <p>© {currentYear} KindLink. All rights reserved. Made with purpose. <span className="opacity-40 ml-2">v0.2.0</span></p>
       </div>
     </footer>
   );

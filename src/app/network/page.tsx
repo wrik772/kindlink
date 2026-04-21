@@ -27,6 +27,7 @@ export default async function NetworkPage() {
   const incomingReqIds = incomingRequests.map((r:any) => r.user._id.toString());
 
   let recommendations = [];
+
   if (currentUser.geometry && currentUser.geometry.coordinates && currentUser.geometry.coordinates.length === 2) {
     recommendations = await Organization.find({
       geometry: {
@@ -175,11 +176,14 @@ export default async function NetworkPage() {
                     {org.location}
                 </p>
                 <p className="text-sm text-gray-700 line-clamp-2 mb-5 leading-relaxed">{org.description}</p>
-                {org.website && (
-                    <a href={org.website.startsWith('http') ? org.website : `https://${org.website}`} target="_blank" rel="noopener noreferrer" className="block text-center w-full py-2.5 bg-[#ae8563]/10 text-[#ae8563] font-bold text-sm rounded-lg hover:bg-[#ae8563] hover:text-white transition-colors">
-                      Follow Impact
-                    </a>
-                )}
+                
+                <div className="flex flex-col gap-2">
+                    {org.website && (
+                        <a href={org.website.startsWith('http') ? org.website : `https://${org.website}`} target="_blank" rel="noopener noreferrer" className="block text-center w-full py-2.5 bg-[#ae8563]/10 text-[#ae8563] font-bold text-sm rounded-lg hover:bg-[#ae8563] hover:text-white transition-colors">
+                        Follow Impact
+                        </a>
+                    )}
+                </div>
               </div>
             ))}
           </div>

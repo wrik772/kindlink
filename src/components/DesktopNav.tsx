@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UnreadBadge from "@/components/UnreadBadge";
 import SignOutButton from "@/components/SignOutButton";
+import NotificationDrawer from "@/components/NotificationDrawer";
 
 interface DesktopNavProps {
   isLoggedIn: boolean;
@@ -59,6 +60,7 @@ export default function DesktopNav({ isLoggedIn }: DesktopNavProps) {
             >
               Dashboard
             </Link>
+            <NotificationDrawer />
             <SignOutButton />
           </div>
         )}

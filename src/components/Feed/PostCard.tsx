@@ -4,15 +4,16 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
-
+import ShareModal from "./ShareModal";
 import { useRouter } from "next/navigation";
 
 export default function PostCard({ post, currentUserId, isEditable }: { post: any; currentUserId: string, isEditable?: boolean }) {
   const router = useRouter();
   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [hasLiked, setHasLiked] = useState(
-    (post.likes || []).includes(currentUserId)
+    (post.likes || []).some((l: any) => (l._id || l).toString() === currentUserId)
   );
+  const [recentLikerName, setRecentLikerName] = useState<string | null>(post.likes?.at(-1)?.name || null);
 
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<any[]>([]);
@@ -20,6 +21,7 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   
   const allPhotos = post.mediaUrls?.length > 0 ? post.mediaUrls : (post.mediaUrl ? [post.mediaUrl] : []);
 
@@ -37,6 +39,7 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
               if (data.likes !== undefined) {
                  setLikesCount(data.likes);
                  setHasLiked(data.hasLiked);
+                 setRecentLikerName(data.recentLikerName);
               }
           }).catch(() => null);
      }, 8000); // Polling every 8 seconds for real-time feel
@@ -98,6 +101,7 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
       const data = await res.json();
       setLikesCount(data.likes);
       setHasLiked(data.hasLiked);
+      setRecentLikerName(data.recentLikerName);
     } catch (err) {
       console.error(err);
       // Revert optimistic update
@@ -229,9 +233,9 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
              {allPhotos.length === 2 && (
                  <div className="flex gap-[2px] h-64 sm:h-72 md:h-[400px]">
                      {allPhotos.map((url: string, i: number) => (
-                         <div key={i} className="flex-1 overflow-hidden bg-black">
-                            <img onClick={() => setLightboxIndex(i)} src={url} alt={`Post media ${i}`} className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" />
-                         </div>
+                          <div key={i} className="flex-1 overflow-hidden bg-black">
+                             <img onClick={() => setLightboxIndex(i)} src={url} alt={`Post media ${i}`} className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" />
+                          </div>
                      ))}
                  </div>
              )}
@@ -258,19 +262,34 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
         </div>
       )}
 
-      <div className="px-2 py-3 border-t border-gray-50 flex gap-1 mx-2">
+      {/* Instagram-style Likes Row */}
+      {likesCount > 0 && (
+          <div className="px-4 py-2 flex items-center gap-2 border-t border-gray-50/50">
+             <div className="flex -space-x-2">
+                 <div className="w-5 h-5 rounded-full bg-[#ae8563] border-2 border-white flex items-center justify-center">
+                    <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 10.333z" /></svg>
+                 </div>
+             </div>
+             <p className="text-[13px] text-gray-600">
+                Liked by <span className="font-bold text-[#171717]">{recentLikerName || "a supporter"}</span>
+                {likesCount > 1 && <> and <span className="font-bold text-[#171717]">{likesCount - 1} others</span></>}
+             </p>
+          </div>
+      )}
+
+      <div className="px-2 py-2 border-t border-gray-50 flex gap-1 mx-2">
         <button
           onClick={handleLike}
-          className={`px-3 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition-colors ${
+          className={`group px-3 py-2 text-sm font-semibold rounded-lg flex items-center gap-2 transition-colors ${
             hasLiked
               ? "text-[#ae8563] bg-[#ae8563]/10"
               : "text-gray-500 hover:bg-gray-50"
           }`}
         >
-          <svg className="w-5 h-5" fill={hasLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+          <svg className={`w-5 h-5 transition-transform ${hasLiked ? 'scale-110' : 'group-hover:scale-110'}`} fill={hasLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={hasLiked ? 0 : 2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.514" />
           </svg>
-          Like {likesCount > 0 && <span className="text-xs ml-1">• {likesCount}</span>}
+          Like
         </button>
         <button 
           onClick={toggleComments}
@@ -280,6 +299,15 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
           Comment
+        </button>
+        <button 
+          onClick={() => setShowShareModal(true)}
+          className="px-3 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50 rounded-lg flex items-center gap-2 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          Share
         </button>
       </div>
 
@@ -313,15 +341,40 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
                <p className="text-xs text-center text-gray-400 py-2">No comments yet. Be the first to share your thoughts!</p>
             ) : (
               comments.map((comment: any) => (
-                <div key={comment._id} className="flex gap-2">
+                <div key={comment._id} className="flex gap-2 group">
                   <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-[#6b4b34] text-xs flex-shrink-0 border border-[#ae8563]/10 overflow-hidden">
                     {comment.author?.avatar ? <img src={comment.author.avatar} alt="avatar" className="w-full h-full object-cover" /> : comment.author?.name?.charAt(0) || "?"}
                   </div>
-                  <div className="flex-1 bg-white p-2.5 rounded-2xl rounded-tl-none border border-[#ae8563]/10 shadow-sm">
-                    <p className="font-semibold text-xs text-[#171717]">
-                      {comment.author?.name || "Unknown User"}
-                    </p>
-                    <p className="text-sm text-gray-700 mt-0.5">{comment.content}</p>
+                  <div className="flex-1">
+                    <div className="bg-white p-2.5 rounded-2xl rounded-tl-none border border-[#ae8563]/10 shadow-sm relative">
+                        <p className="font-semibold text-xs text-[#171717]">
+                        {comment.author?.name || "Unknown User"}
+                        </p>
+                        <p className="text-sm text-gray-700 mt-0.5">{comment.content}</p>
+                    </div>
+                    {/* Comment Likes UI */}
+                    <div className="flex items-center gap-3 mt-1 ml-2">
+                         <button 
+                            className={`text-[10px] font-bold transition-colors ${comment.likes?.includes(currentUserId) ? 'text-[#ae8563]' : 'text-gray-500 hover:text-gray-800'}`}
+                            onClick={async () => {
+                                try {
+                                    const res = await fetch(`/api/comments/${comment._id}/like`, { method: "POST" });
+                                    if (res.ok) {
+                                        const data = await res.json();
+                                        setComments(prev => prev.map(c => c._id === comment._id ? { ...c, likes: data.likes } : c));
+                                    }
+                                } catch (err) { console.error(err); }
+                            }}
+                         >
+                             {comment.likes?.includes(currentUserId) ? 'Liked' : 'Like'}
+                         </button>
+                         {comment.likes?.length > 0 && (
+                            <span className="text-[10px] text-gray-400 flex items-center gap-1 font-medium">
+                                <svg className="w-2.5 h-2.5 text-[#ae8563]" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 10.333z" /></svg>
+                                {comment.likes.length}
+                            </span>
+                         )}
+                    </div>
                   </div>
                 </div>
               ))
@@ -380,6 +433,13 @@ export default function PostCard({ post, currentUserId, isEditable }: { post: an
            </div>
          </div>
       )}
+
+      <ShareModal 
+        isOpen={showShareModal} 
+        onClose={() => setShowShareModal(false)} 
+        postId={post._id}
+        postContent={post.content}
+      />
     </div>
   );
 }

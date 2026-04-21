@@ -20,13 +20,25 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       await connectToDatabase();
     }
 
-    const post = await Post.findById(id).lean() as any;
+    const post = await Post.findById(id).populate("likes", "name").lean() as any;
     if (!post) return NextResponse.json({ message: "Not found" }, { status: 404 });
 
     const currentLikes = post.likes || [];
-    const hasLiked = userId ? currentLikes.some((likedId: any) => likedId.toString() === userId) : false;
+    const hasLiked = userId ? currentLikes.some((likedId: any) => 
+      (likedId._id || likedId).toString() === userId
+    ) : false;
 
-    return NextResponse.json({ likes: currentLikes.length, hasLiked });
+    // Get the name of a recent liker (other than current user if possible)
+    let recentLikerName = null;
+    if (currentLikes.length > 0) {
+      recentLikerName = currentLikes[currentLikes.length - 1].name;
+    }
+
+    return NextResponse.json({ 
+      likes: currentLikes.length, 
+      hasLiked,
+      recentLikerName 
+    });
   } catch (error) {
     return NextResponse.json({ message: "Error" }, { status: 500 });
   }

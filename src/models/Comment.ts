@@ -4,6 +4,7 @@ export interface CommentDocument extends mongoose.Document {
   post: mongoose.Types.ObjectId;
   author: mongoose.Types.ObjectId;
   content: string;
+  likes: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,6 +14,7 @@ const CommentSchema = new Schema<CommentDocument>(
     post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     content: { type: String, required: true, trim: true },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

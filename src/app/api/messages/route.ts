@@ -17,7 +17,15 @@ export async function GET() {
     // Find all distinct users the current user has messaged with
     const messages = await Message.find({
         $or: [{ sender: currentUser._id }, { receiver: currentUser._id }]
-    }).sort({ createdAt: -1 }).populate('sender receiver', 'name avatar email').lean() as any[];
+    })
+    .sort({ createdAt: -1 })
+    .populate('sender receiver', 'name avatar email')
+    .populate({
+      path: 'sharedPost',
+      select: 'content mediaUrl mediaUrls author',
+      populate: { path: 'author', select: 'name' }
+    })
+    .lean() as any[];
 
     // Decrypt all contents
     messages.forEach(msg => {
@@ -53,7 +61,7 @@ export async function POST(req: Request) {
     const session = await auth();
     if (!session?.user?.email) return NextResponse.json(null, { status: 401 });
 
-    const { receiverId, content } = await req.json();
+    const { receiverId, content, sharedPostId } = await req.json();
 
     await connectToDatabase();
     const currentUser = await User.findOne({ email: session.user.email }) as any;
@@ -62,10 +70,19 @@ export async function POST(req: Request) {
     const message = await Message.create({
         sender: currentUser._id,
         receiver: receiverId,
-        content: encrypt(content)
+        content: encrypt(content),
+        sharedPost: sharedPostId
     });
 
-    const populatedMessage = await message.populate('sender receiver', 'name avatar email');
+    const populatedMessage = await message.populate([
+      { path: 'sender receiver', select: 'name avatar email' },
+      { 
+        path: 'sharedPost', 
+        select: 'content mediaUrl mediaUrls author',
+        populate: { path: 'author', select: 'name' }
+      }
+    ]);
+
     // Decrypt the response for the immediate frontend client state
     populatedMessage.content = content;
     return NextResponse.json(populatedMessage, { status: 201 });

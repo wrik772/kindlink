@@ -181,6 +181,30 @@ function MessagesInbox() {
                                 return (
                                     <div key={msg._id || i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in-up`}>
                                         <div className={`max-w-[70%] rounded-2xl px-5 py-2.5 text-sm ${isMe ? 'bg-gradient-to-br from-[#ae8563] to-[#967050] text-white rounded-br-none shadow-md' : 'bg-white border border-[#ae8563]/10 text-gray-800 rounded-bl-none shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]'}`}>
+                                            {msg.sharedPost && (
+                                                <div className="mb-3 bg-[#fcf9f5] border border-[#ae8563]/20 rounded-xl overflow-hidden shadow-inner group/card">
+                                                    <div className="p-3">
+                                                       <div className="flex items-center gap-2 mb-2">
+                                                            <div className="w-5 h-5 rounded-full bg-[#ae8563] border border-white flex items-center justify-center text-[8px] font-bold text-white overflow-hidden">
+                                                                {msg.sharedPost.author?.name?.charAt(0)}
+                                                            </div>
+                                                            <span className="text-[10px] font-bold text-[#6b4b34] uppercase tracking-tighter">{msg.sharedPost.author?.name}'s Post</span>
+                                                       </div>
+                                                       <p className="text-[11px] text-[#171717] line-clamp-2 leading-relaxed mb-1">{msg.sharedPost.content}</p>
+                                                    </div>
+                                                    {(msg.sharedPost.mediaUrls?.[0] || msg.sharedPost.mediaUrl) && (
+                                                        <div className="h-28 w-full border-t border-[#ae8563]/5">
+                                                            <img src={msg.sharedPost.mediaUrls?.[0] || msg.sharedPost.mediaUrl} className="w-full h-full object-cover grayscale-[20%] group-hover/card:grayscale-0 transition-all opacity-90 group-hover/card:opacity-100" />
+                                                        </div>
+                                                    )}
+                                                    <Link 
+                                                        href={`/home#post-${msg.sharedPost._id}`}
+                                                        className="block text-center py-2 text-[10px] bg-white hover:bg-[#ae8563] hover:text-white transition-all font-bold text-[#ae8563] border-t border-[#ae8563]/10"
+                                                    >
+                                                        View Full Post
+                                                    </Link>
+                                                </div>
+                                            )}
                                             {msg.content}
                                             <span className={`block text-[10px] mt-1.5 ${isMe ? 'text-white/70 text-right' : 'text-gray-400 text-left'}`}>
                                                 {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "Just now"}

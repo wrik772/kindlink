@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UnreadBadge from "@/components/UnreadBadge";
 import SignOutButton from "@/components/SignOutButton";
+import NotificationDrawer from "@/components/NotificationDrawer";
 
 interface MobileMenuProps {
   isLoggedIn: boolean;
@@ -24,7 +25,9 @@ export default function MobileMenu({ isLoggedIn }: MobileMenuProps) {
   if (isForgotPass && !isLoggedIn) return null;
 
   return (
-    <div className="sm:hidden flex items-center gap-3">
+    <div className="sm:hidden flex items-center gap-2">
+      {isLoggedIn && <NotificationDrawer />}
+      
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 text-[#6b4b34] focus:outline-none"

@@ -52,6 +52,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       content,
     });
 
+    // Create notification for the post author
+    if (postExists.author.toString() !== dbUser._id.toString()) {
+        const Notification = (await import("@/models/Notification")).default;
+        await Notification.create({
+            recipient: postExists.author,
+            sender: dbUser._id,
+            type: "comment",
+            post: id,
+            comment: newComment._id
+        });
+    }
+
     const populatedComment = await newComment.populate('author', 'name avatar');
 
     return NextResponse.json(populatedComment, { status: 201 });
