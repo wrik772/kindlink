@@ -13,6 +13,7 @@ export interface UserDocument extends mongoose.Document {
   phoneNumber?: string;
   interests: string[];
   isAdmin: boolean;
+  notificationSoundEnabled: boolean;
   friends: mongoose.Types.ObjectId[];
   friendRequests: { user: mongoose.Types.ObjectId; status: string }[];
   createdAt: Date;
@@ -24,6 +25,7 @@ const UserSchema = new Schema<UserDocument>(
     email: { type: String, required: true, trim: true, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
+    notificationSoundEnabled: { type: Boolean, default: true },
     location: { type: String },
     geometry: {
       type: { type: String, enum: ['Point'], default: 'Point' },

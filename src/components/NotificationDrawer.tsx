@@ -39,15 +39,39 @@ export default function NotificationDrawer() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [activeTab, setActiveTab] = useState<"all" | "unread">("all");
   const audioRef = useRef<HTMLAudioElement | null>(null);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-    const optionsRef = useRef<HTMLDivElement>(null);
-    const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
 
   useEffect(() => {
+    fetchSettings();
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch("/api/user/settings");
+      if (res.ok) {
+        const data = await res.json();
+        setIsSoundEnabled(data.notificationSoundEnabled);
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  const toggleSound = async () => {
+    const newValue = !isSoundEnabled;
+    setIsSoundEnabled(newValue);
+    try {
+      await fetch("/api/user/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationSoundEnabled: newValue })
+      });
+    } catch (err) { console.error(err); }
+  };
 
   // Handle click outside to close
   useEffect(() => {
@@ -73,7 +97,7 @@ export default function NotificationDrawer() {
       if (res.ok) {
         const data = await res.json();
         const newUnread = data.filter((n: Notification) => !n.isRead).length;
-        if (newUnread > unreadCount && audioRef.current) {
+        if (newUnread > unreadCount && audioRef.current && isSoundEnabled) {
           audioRef.current.play().catch(() => null);
         }
         setNotifications(data);
@@ -138,16 +162,16 @@ export default function NotificationDrawer() {
         );
       case "share":
         return (
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-            </div>
-          );
+          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center">
+            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+          </div>
+        );
       default: return null;
     }
   };
 
-  const filteredNotifications = activeTab === "all" 
-    ? notifications 
+  const filteredNotifications = activeTab === "all"
+    ? notifications
     : notifications.filter(n => !n.isRead);
 
   // Simple sectioning
@@ -162,8 +186,8 @@ export default function NotificationDrawer() {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <audio ref={audioRef} src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto" />
-      
+      <audio ref={audioRef} src="https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3" preload="auto" />
+
       {/* Bell Button */}
       <button
         onClick={() => {
@@ -193,7 +217,7 @@ export default function NotificationDrawer() {
             <div className="flex items-center justify-between mb-3 relative">
               <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
               <div ref={optionsRef}>
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); setShowOptionsMenu(!showOptionsMenu); }}
                   className={`p-2 rounded-full transition-colors ${showOptionsMenu ? 'bg-gray-100 text-gray-900' : 'hover:bg-gray-100 text-gray-500'}`}
                 >
@@ -209,18 +233,34 @@ export default function NotificationDrawer() {
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                       Mark all as read
                     </button>
+                    <button 
+                      onClick={() => { toggleSound(); setShowOptionsMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 font-medium transition-colors"
+                    >
+                      {isSoundEnabled ? (
+                        <>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+                          Mute notification sounds
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                          Unmute notification sounds
+                        </>
+                      )}
+                    </button>
                   </div>
                 )}
               </div>
             </div>
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setActiveTab("all")}
                 className={`px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${activeTab === 'all' ? 'bg-[#ae8563]/10 text-[#ae8563]' : 'text-gray-500 hover:bg-gray-100'}`}
               >
                 All
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab("unread")}
                 className={`px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${activeTab === 'unread' ? 'bg-[#ae8563]/10 text-[#ae8563]' : 'text-gray-500 hover:bg-gray-100'}`}
               >
@@ -232,10 +272,10 @@ export default function NotificationDrawer() {
           <div className="overflow-y-auto max-h-[480px] pb-2 custom-scrollbar">
             {filteredNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                 </div>
-                 <p className="text-gray-500 text-sm">No notifications yet.</p>
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                </div>
+                <p className="text-gray-500 text-sm">No notifications yet.</p>
               </div>
             ) : (
               <div className="space-y-1 px-2">
@@ -248,7 +288,7 @@ export default function NotificationDrawer() {
                     {newNotifications.map(renderNotifItem)}
                   </>
                 )}
-                
+
                 {earlierNotifications.length > 0 && (
                   <>
                     <div className="px-3 py-4">
@@ -267,8 +307,8 @@ export default function NotificationDrawer() {
 
   function renderNotifItem(notif: Notification) {
     return (
-      <div 
-        key={notif._id} 
+      <div
+        key={notif._id}
         className={`group p-2 rounded-lg hover:bg-gray-50 transition-all flex gap-3 relative cursor-pointer ${!notif.isRead ? 'after:content-[""] after:w-2.5 after:h-2.5 after:bg-red-500 after:rounded-full after:absolute after:right-4 after:top-1/2 after:-translate-y-1/2' : ''}`}
       >
         <div className="relative shrink-0">
@@ -283,7 +323,7 @@ export default function NotificationDrawer() {
           </div>
           {getBadgeIcon(notif.type)}
         </div>
-        
+
         <div className="flex-1 min-w-0 pr-6">
           <p className="text-sm text-gray-900 leading-snug">
             <span className="font-bold">{notif.sender.name}</span> {getNotificationText(notif)}
@@ -291,21 +331,21 @@ export default function NotificationDrawer() {
           <p className="text-xs text-blue-600 font-bold mt-1">
             {timeAgo(new Date(notif.createdAt))}
           </p>
-          
+
           {notif.type === "friend_request" && (
             <div className="flex gap-2 mt-3 mb-1">
-               <button 
-                  onClick={(e) => { e.stopPropagation(); handleAction(notif._id, notif.sender._id, "accept"); }}
-                  className="flex-1 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors"
-               >
-                 Confirm
-               </button>
-               <button 
-                  onClick={(e) => { e.stopPropagation(); handleAction(notif._id, notif.sender._id, "reject"); }}
-                  className="flex-1 py-1.5 bg-gray-200 text-gray-900 rounded-lg text-sm font-bold hover:bg-gray-300 transition-colors"
-               >
-                 Delete
-               </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleAction(notif._id, notif.sender._id, "accept"); }}
+                className="flex-1 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleAction(notif._id, notif.sender._id, "reject"); }}
+                className="flex-1 py-1.5 bg-gray-200 text-gray-900 rounded-lg text-sm font-bold hover:bg-gray-300 transition-colors"
+              >
+                Delete
+              </button>
             </div>
           )}
         </div>
